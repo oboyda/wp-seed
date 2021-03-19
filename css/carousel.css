@@ -1,0 +1,38 @@
+/**
+ * CAROUSEL
+ * --------------------------------------------------
+ */
+
+.ac-carousel {
+    position: relative;
+}
+.ac-carousel .carousel-viewport {
+    position: relative;
+    overflow: hidden;
+    min-height: 5em;
+    /*trasntition-property: height;
+    transition-duration: 0.5s;*/
+}
+.ac-carousel.loading .carousel-items {
+    visibility: hidden;
+}
+.ac-carousel .carousel-items {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /*height: 100%;*/
+}
+.ac-carousel .carousel-item {
+    position: relative;
+    overflow: hidden;
+}
+.ac-carousel.direction-x .carousel-items:after {
+    content: "."; 
+    visibility: hidden; 
+    display: block; 
+    height: 0; 
+    clear: both;
+}
+.ac-carousel.direction-x .carousel-item {
+    float: left;
+}
