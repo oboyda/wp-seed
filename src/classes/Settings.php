@@ -1,5 +1,5 @@
 <?php
-namespace AC;
+namespace WPSEED;
 
 class Settings {
 
@@ -11,7 +11,7 @@ class Settings {
 
 	function __construct($settings, $sections){
         $this->settings = wp_parse_args($settings, array(
-            'prefix' => 'ac_',
+            'prefix' => 'wpseed_',
             'menu_page' => 'options-general.php', // https://codex.wordpress.org/Function_Reference/add_submenu_page#Parameters
             'menu_title' => __('Theme Options', 'ac'),
             'page_title' => __('Theme Options', 'ac'),

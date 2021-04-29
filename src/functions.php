@@ -1,68 +1,72 @@
 <?php
 
-$_ac_vid = 0;
+if(!function_exists('wpseed_get_view'))
+{
+    /*
+     * Builds and returns/outputs the view template
+     * 
+     * Inside the template we use $view variable to reference to the view object. 
+     * We access template arguments with $view->args;
+     *
+     * @param string $name Template name, relative to the views dir. Must NOT include .php at the end!
+     * @param array $args Arguments to be passed to the view object. Will be merged with the default arguments.
+     * @param bool $echo Whether to return or output the template
+     * @return string|void 
+     */
 
-function ac_get_view($name, $args=[], $echo=false, $namespace='\AC\View', $views_dir=''){
-    global $_ac_vid;
+    function wpseed_get_view($name, $args=[], $echo=false)
+    {
+        $views_dir = apply_filters('wpseed_views_dir', get_stylesheet_directory() . '/views');
+        $views_namespace = apply_filters('wpseed_views_namespace', '\View');
+
+        $view_path = $views_dir . '/' . $name . '.php';
+        $view_class = str_replace(' ', '_', ucwords(str_replace('-', ' ', $name)));
+        $view_class_name = $views_namespace . '\\' . $view_class;
+        
+        if(class_exists($view_class_name))
+        {
+            $view = new $view_class_name($args);
+        }
+        else{
+            
+            $view = new \WPSEED\View($args);
+        }
     
-    $view_id = '';
+        if(file_exists($view_path))
+        {
+            if(!$echo)
+            {
+                ob_start();
+            }
     
-    if(empty($args['view_id'])){
-        $_ac_vid += 1;
-        $view_id = 'ac' . $_ac_vid;
-    }else{
-        $view_id = $args['view_id'];
-    }
+            include $view_path;
     
-    $view_class = 'view view-' . $name;
+            if(!$echo)
+            {
+                $html = ob_get_contents();
+                ob_end_clean();
     
-    if(isset($args['class'])){
-        $view_class .= ' ' . $args['class'];
-    }
-    
-    $fields = isset($args['fields']) ? $args['fields'] : [];
-    
-    $basename = basename($name);
-    $class = $namespace . '\\' . ucwords(str_replace('-', '_', $basename), '_');
-    $view = class_exists($class) ? new $class($args) : new \AC\View($args);
-    
-    if(isset($view) && isset($view->args)){
-        $args = $view->args;
-    }
-    
-    $view_path = $views_dir . '/' . $name . '.php';
-    
-    if(!$echo){
-        ob_start();
-    }
-    
-    if(file_exists($view_path)){
-        include($view_path);
-    }
-    
-    if(!$echo){
-        $html = ob_get_contents();
-        ob_end_clean();
-        return $html;
+                return $html;
+            }
+        }
     }
 }
 
-function ac_debug($debug, $append=false){
-    
-    $path = ABSPATH . '/__debug.txt';
-    
-    if($append){
-        if(is_array($debug) || is_object($debug)){
-            file_put_contents($path, print_r($debug, true), FILE_APPEND);
-        }else{
-            file_put_contents($path, $debug, FILE_APPEND);
-        }
-    }else{
-        if(is_array($debug) || is_object($debug)){
-            file_put_contents($path, print_r($debug, true));
-        }else{
-            file_put_contents($path, $debug);
-        }
+if(!function_exists('wpseed_print_view'))
+{
+    /*
+     * Prints the view template
+     * 
+     * Inside the template we use $view variable to reference to the view object. 
+     * We access template arguments with $view->args;
+     * 
+     * @param string $name Template name, relative to the views dir. Must NOT include .php at the end!
+     * @param array $args Arguments to be passed to the view object. Will be merged with the default arguments.
+     * @return void
+     */
+
+    function wpseed_print_view($name, $args=[])
+    {
+        wpseed_get_view($name, $args, true);
     }
-    
 }

@@ -1,5 +1,5 @@
 <?php
-namespace AC;
+namespace WPSEED;
 
 class Media {
     
