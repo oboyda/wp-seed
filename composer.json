@@ -1,11 +1,9 @@
 {
     "name": "oboyda/wp-seed",
-    "type": "library",
-    "description": "Better entity classes for Wordpress development",
-    "authors": [
-        {
-            "name": "Alexis Boyda",
-            "email": "admin@aleapp.com"
+    "description": "Better entity classes for agile Wordpress development",
+    "autoload": {
+        "psr-4": {
+            "OFR\\": "src/classes"
         }
-    ]
+    }
 }
