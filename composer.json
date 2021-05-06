@@ -3,7 +3,7 @@
     "description": "Better entity classes for agile Wordpress development",
     "autoload": {
         "psr-4": {
-            "OFR\\": "src/classes"
+            "WPSEED\\": "src/classes"
         }
     }
 }
