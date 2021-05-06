@@ -1,7 +1,11 @@
 {
-    "autoload": {
-        "psr-4": {
-            "WPSEED\\": "src/classes"
+    "name": "oboyda/wp-seed",
+    "type": "library",
+    "description": "Better entity classes for Wordpress development",
+    "authors": [
+        {
+            "name": "Alexis Boyda",
+            "email": "admin@aleapp.com"
         }
-    }
+    ]
 }
