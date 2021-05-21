@@ -56,10 +56,18 @@ if(!class_exists('\WPSEED\Entity'))
         {
             if(!in_array('data', $this->prop_types)) return;
 
-            $this->data = is_int($post) ? (array)get_post($post) : (array)$post;
-            $this->id = is_a($this->data, 'WP_Post') ? $this->data->ID : 0;
+            $this->id = 0;
+            $this->data = [];
+            $this->permalink = '';
 
-            $this->permalink = get_permalink($this->id);
+            $_post = is_int($post) ? get_post($post) : $post;
+
+            if(is_a($_post, 'WP_Post'))
+            {
+                $this->id = $_post->ID;
+                $this->data = (array)$_post;
+                $this->permalink = get_permalink($this->id);
+            }
         }
 
         protected function _set_meta()
@@ -258,7 +266,8 @@ if(!class_exists('\WPSEED\Entity'))
                 {
                     $_attachments[$key][] = $attachment->get_id();
                 }
-                else{
+                else
+                {
                     $_attachments[$key][] = (int)$attachment;
                 }
             }

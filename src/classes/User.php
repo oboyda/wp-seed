@@ -1,308 +1,436 @@
 <?php
+
 namespace WPSEED;
 
-class User {
-    
-    var $ID;
-    var $wp_user;
-    var $role;
-    var $meta;
-    var $fields_config;
-    
-    public function __construct($user=0, $fields_config=[]){
-        
-        $this->wp_user = (is_int($user) && $user) ? get_userdata($user) : $user;
-        $this->ID = ($this->wp_user && isset($this->wp_user->ID)) ? $this->wp_user->ID : 0;
-        
-        $this->fields_config = $fields_config;
-        
-        if(!$this->ID){
-            return;
-        }
-        
-        $this->role = $this->wp_user->roles[0];
-        
-        $this->meta = get_user_meta($this->ID);
-    }
-    
-    static function selectFieldsConfig($fields_config, $incl_keys=[]){
-        
-        if(empty($incl_keys)){
-            return $fields_config;
-        }
-        
-        $selected = [];
-        
-        foreach($incl_keys as $key){
-            if(isset($fields_config[$key])){
-                $selected[$key] = $fields_config[$key];
-            }
-        }
-        
-        return $selected;
-    }
-    
-    public function get($key, $default=null, $label=false){
-        
-        $val = false;
-        
-        if(!$this->ID){
-            return isset($default) ? $default : $val;
-        }
-        
-        $field_config = $this->getFieldConfig($key);
-        
-        if(isset($field_config['sys_key'])){
-            $key = $field_config['sys_key'];
-        }
-        
-        if($key === 'ID'){
-            return $this->ID;
-        }
-        
-        //Get from data
-        $data = (array)$this->wp_user->data;
-        if(isset($data[$key])){
-            $val = $data[$key];
-        }
-        
-        //Get from meta
-        if($val === false){
-            $val = isset($this->meta[$key]) ? maybe_unserialize($this->meta[$key][0]) : false;
-        }
-                
-        $val = (isset($default) && empty($val)) ? $default : $val;
-        
-        if($label){
-            if(isset($field_config['options'])){
-                return isset($field_config['options'][$val]) ? $field_config['options'][$val] : $val; 
-            }
-            if(isset($field_config['taxonomy'])){
-                $term = get_term_by('slug', $val, $field_config['taxonomy']);
-                return $term ? $term->name : $val;
-            }
-        }
-        
-        return $val;
-    }
-    
-    public function getFieldConfig($key){
-        
-        return isset($this->fields_config[$key]) ? $this->fields_config[$key] : false;
-    }
-    
-    public function getFieldConfigOptionLabel($key, $val){
-        
-        $field_config = $this->getFieldConfig($key);
-        
-        if(isset($field_config['options']) && isset($field_config['options'][$val])){
-            return $field_config['options'][$val];
-        }
-        
-        return $val;
-    }
-    
-    static function groupFieldsByModelType($fields, $fields_config=[]){
-        
-        return Type::groupFieldsByModelType($fields, $fields_config);
-    }
-    
-    public function create($fields, $files=[]){
-        
-        $_fields = self::groupFieldsByModelType($fields, $this->fields_config);
-        
-        if(empty($_fields['data']['user_email']) || empty($_fields['data']['user_pass'])){
-            return;
-        }
-        if(empty($_fields['data']['user_login'])){
-            $_fields['data']['user_login'] = $_fields['data']['user_email'];
-        }
-        if(empty($_fields['data']['user_nicename']) && isset($_fields['meta']['first_name'])){
-            $_fields['data']['user_nicename'] = sanitize_title($_fields['meta']['first_name']);
-        }
-        if(empty($_fields['data']['display_name']) && isset($_fields['data']['user_nicename'])){
-            $_fields['data']['display_name'] = $_fields['data']['user_nicename'];
-        }
-        
-        $_fields['data']['role'] = $this->role;
-        
-        $created = wp_insert_user($_fields['data']);
-        if(!$created || is_wp_error($created)){
-            return;
-        }
-        $this->ID = $created;
-        
-        /* ----- unset data fields as they already have been inserted ----- */
-        foreach(array_keys($_fields['data']) as $key){
-            unset($_fields['data'][$key]);
-        }
-        
-        $this->update($_fields, $files);
-    }
-    
-    public function update($fields, $files=[]){
-        
-        if(!$this->ID){
-            return false;
-        }
-        
-        $_fields = self::groupFieldsByModelType($fields, $this->fields_config);
-        
-        if(!empty($_fields['data'])){
-            
-            foreach($_fields['data'] as $key => $data){
-                $this->wp_user->$key = $data;
-            }
-            
-            $_fields['data']['ID'] = $this->ID;
-            $updated = wp_update_user($_fields['data']);
-            if(!$updated || is_wp_error($updated)){
-                return;
-            }
-        }
-        
-        if(!empty($_fields['meta'])){
-            foreach($_fields['meta'] as $key => $meta){
-                if($meta !== ""){
-                    $this->meta[$key][0] = $meta;
-                    update_user_meta($this->ID, $key, $meta);
-                }else{
-                    if(isset($this->meta[$key])){
-                        unset($this->meta[$key]);
-                    }
-                    delete_user_meta($this->ID, $key);
-                }
-            }
-        }
-        
-        $attachments = $this->saveAttachments($_fields, $files);
-        
-        //$this->__construct($this->ID, $this->fields_config);
-        
-        return [
-            'attachments' => $attachments
-        ];
-    }
-    
-    public function delete($delete_children=false){
-        
-        if(!$this->ID){
-            return false;
-        }
-        
-        if($delete_children){
-            $this->deleteChildren();
-        }
-        
-        return wp_delete_user($this->ID);
-    }
-    
-    public function deleteChildren(){
-        
-        if(!$this->ID){
-            return false;
-        }
-        
-        $children_posts = get_posts([
-            'author' => $this->ID,
-            'post_status' => 'any',
-            'post_type' => 'attachment',
-            'posts_per_page' => -1
-        ]);
+if(!class_exists('\WPSEED\Entity'))
+{
+    class User 
+    {
+        protected $id;
 
-        if(!empty($children_posts)){
-            foreach($children_posts as $children_post){
-                wp_delete_post($children_post->ID, true);
+        protected $prop_types;
+        protected $props_config;
+
+        protected $data;
+        protected $meta;
+
+        protected $role;
+        
+        /*
+        --------------------------------------------------
+        Construct the Post object
+
+        @param object|int $user WP_User instance or user ID.
+        @param array $props_config['key'] = [
+            'type' => 'data' | 'meta' | 'term' | 'attachment'
+            'label' => 'Field Label' (defaults to $key),
+            'options' => [
+                'option1' => 'Option Label 1',
+                'option2' => 'Option Label 2'
+            ],
+            'required' => false | true
+        ]
+
+        @return void
+        --------------------------------------------------
+        */
+        public function __construct($user=null, $props_config=[])
+        {
+            $this->prop_types = ['data', 'meta'];
+
+            $this->_set_data($user);
+            $this->_set_meta();
+            $this->_set_props_config($props_config);
+        }
+
+        /*
+        --------------------------------------------------
+        Init & setter methods
+        --------------------------------------------------
+        */
+
+        protected function _set_data($user=null)
+        {
+            if(!in_array('data', $this->prop_types)) return;
+
+            $this->id = 0;
+            $this->data = [];
+            $this->role = '';
+
+            $_user = is_int($user) ? get_userdata($user) : $user;
+
+            if(is_a($_user, 'WP_User'))
+            {
+                $this->id = $_user->ID;
+                $this->data = (array)$_user->data;
+                if(isset($_user->roles[0])) $thid->role = $_user->roles[0];
             }
+        }
+
+        protected function _set_meta()
+        {
+            if(!in_array('meta', $this->prop_types)) return;
+            
+            $this->meta = [];
+
+            if($this->id)
+            {
+                $meta = get_user_meta($this->id);
+                foreach((array)$meta as $key => $m)
+                {
+                    foreach((array)$meta as $i => $m)
+                    {
+                        $this->meta[$key][$i] = maybe_unserialize($m);
+                    }
+                }
+            }
+        }
+
+        protected function _set_props_config($props_config)
+        {
+            foreach((array)$props_config as $key => $prop_config)
+            {
+                $this->props_config[$key] = wp_parse_args($prop_config, [
+                    'type' => 'data',
+                    'label' => $key,
+                    'required' => false
+                ]);
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Set data type properties. 
+        Data properties map to WP_Post object properties;
+
+        @param string $key as in WP_Post object
+        @param mixed $value
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_data($key, $value)
+        {
+            if(!in_array('data', $this->prop_types)) return;
+
+            $_keys = [
+                'user_login',
+                'user_pass',
+                'user_nicename',
+                'user_email',
+                'user_url',
+                'user_registered',
+                'user_activation_key',
+                'user_status',
+                'display_name'
+            ];
+
+            if(in_array($key, $_keys))
+            {
+                $this->data[$key] = $value;
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Set user role
+
+        @param string $role
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_role($role)
+        {
+            $this->role = $role;
+        }
+
+        /*
+        --------------------------------------------------
+        Set meta type properties
+
+        @param string $key Must be specified in $this->props_config;
+        @param mixed $value
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_meta($key, $value, $single=true)
+        {
+            if(!in_array('meta', $this->prop_types)) return;
+
+            $prop_config = $this->get_props_config($key);
+
+            if(!(isset($prop_config) && $prop_config['type'] === 'meta')) return;
+
+            if(!(isset($prop_config['options']) && in_array($value, $prop_config['options']))) return;
+            
+            if($single)
+            {
+                $this->meta[$key] = [$value];
+            }
+            else{
+                $this->meta[$key] = $value;
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Common method to set data, meta, term and attachment type properties
+
+        @param string $key
+        @param mixed $value
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_prop($key, $value)
+        {
+            $prop_config = $this->get_props_config($key);
+            $type = isset($prop_config) ? $prop_config['type'] : 'data';
+
+            switch($type)
+            {
+                case 'data':
+                    $this->set_data($key, $value);
+                    break;
+                case 'meta':
+                    $this->set_meta($key, $value);
+                    break;
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Common method to set in bulk data, meta, term and attachment type properties
+
+        @param array $props Array of key-value pairs
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_props($props)
+        {
+            foreach((array)$props as $key => $prop)
+            {
+                $this->set_prop($key, $prop);
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Get WP_Post ID from $this->id
+
+        @return int
+        --------------------------------------------------
+        */
+        public function get_id()
+        {
+            return $this->id;
+        }
+
+        /*
+        --------------------------------------------------
+        Get data type properties
+
+        @param string|null $key as in WP_Post object
+        @param mixed $default Default value to return
+
+        @return mixed If $key=null all data values will be returned
+        --------------------------------------------------
+        */
+        public function get_data($key=null, $default=null)
+        {
+            if(!in_array('data', $this->prop_types)) return null;
+            
+            if(!isset($key)) return $this->data;
+
+            return (isset($default) && empty($this->data[$key])) ? $default : $this->data[$key];
+        }
+
+        /*
+        --------------------------------------------------
+        Get user role
+
+        @return string
+        --------------------------------------------------
+        */
+        public function get_role()
+        {
+            return $this->role;
+        }
+
+        /*
+        --------------------------------------------------
+        Get meta type properties
+
+        @param string|null $key
+        @param bool $single Whether to return a single meta value
+        @param mixed $default Default value to return
+
+        @return mixed If $key=null all meta values will be returned
+        --------------------------------------------------
+        */
+        public function get_meta($key=null, $single=true, $default=null)
+        {
+            if(!in_array('meta', $this->prop_types)) return null;
+            
+            if(!isset($key))
+            {
+                if(!$single)
+                {
+                    $meta = [];
+                    foreach($this->meta as $_key => $_meta)
+                    {
+                        if(isset($_meta[0])) $meta[$_key] = $_meta[0];
+                    }
+                    return $meta;
+                }
+                return $this->meta;
+            }
+
+            $meta = isset($this->meta[$key]) ? $this->meta[$key] : false;
+
+            $meta = (isset($default) && empty($meta)) ? $default : $meta;
+
+            return $single && isset($meta[0]) ? $meta[0] : $meta;
+        }
+
+        /*
+        --------------------------------------------------
+        Get $props_config
+
+        @prop string|null $key
+
+        @return array|bool
+        --------------------------------------------------
+        */
+        public function get_props_config($key=null)
+        {
+            if(isset($key))
+            {
+                return isset($this->props_config[$key]) ? $this->props_config[$key] : null;
+            }
+            return $this->props_config;
+        }
+
+        /*
+        --------------------------------------------------
+        Default method to get values from $this->data or $this->meta
+        Example from data: get_title(), get_content();
+        Example from meta: get_meta1(), get__meta2();
+
+        @return mixed
+        --------------------------------------------------
+        */
+        public function __call($name, $args)
+        {
+            if(strpos($name, 'get_') === 0)
+            {
+                $key = substr($name, strlen('get_'));
+                $prop_config = $this->get_props_config($key);
+
+                if(array_key_exists($key, $this->data))
+                {
+                    $default = isset($args[0]) ? $args[0] : null;
+                    return $this->get_data($key, $default);
+                }
+                elseif(array_key_exists($key, $this->meta))
+                {
+                    $single = isset($args[0]) ? $args[0] : true;
+                    $default = isset($args[1]) ? $args[1] : null;
+                    return $this->get_meta($key, $single, $default);
+                }
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Validate object properties
+
+        @return array
+        --------------------------------------------------
+        */
+        public function validate()
+        {
+            $errors = [
+                'field_errors' => []
+            ];
+
+            foreach((array)$this->props_config as $key => $prop_config)
+            {
+                $value = $this->get_prop($key);
+
+                if($prop_config['required'] && empty($value))
+                {
+                    $errors['field_errors'][] = $key;
+                }
+            }
+
+            return $errors;
+        }
+
+        /*
+        --------------------------------------------------
+        Save object's data to the database from $this->data, $this->meta
+
+        @return void
+        --------------------------------------------------
+        */
+        public function persist($password=null)
+        {
+            $id = 0;
+
+            if(!empty($this->data))
+            {
+                
+                $user_email = $this->get_data('user_email');
+
+                if(empty($user_email)) return;
+
+                $user_login = $this->get_data('user_login');
+
+                if(empty($user_login)){
+                    $this->set_data('user_login', $user_email);
+                }
+                
+                $data = $this->get_data();
+                $meta = $this->get_meta(null, true);
+
+                if(!empty($data['ID']))
+                {
+                    $id = wp_update_user($data);
+                }
+                elseif(isset($password))
+                {
+                    $data['user_pass'] = $password;
+                    $id = wp_insert_user($data);
+                }
+            }
+
+            if($id !== $this->id)
+            {
+                $this->__construct(
+                    $id, 
+                    $this->props_config
+                );
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Delete user
+        
+        @param bool $reassign Reassign posts and links to new User ID
+
+        @return void
+        --------------------------------------------------
+        */
+        public function delete($reassign=null)
+        {
+            if(!$this->id) return false;
+            
+            return wp_delete_user($this->id, $reassign);
         }
     }
-    
-    public function saveAttachments($fields, $files, $update_meta=true){
-        
-        $resp = [
-            'saved' => [],
-            'deletd' => []
-        ];
-        
-        if(!$this->ID){
-            return $resp;
-        }
-        
-        $_fields = self::groupFieldsByModelType($fields, $this->fields_config);
-        
-        $author_id = intval($this->get('post_author'));
-        
-        if(!empty($_fields['attachment_del'])){
-            foreach($_fields['attachment_del'] as $key => $field){
-                if(!is_array($field)){
-                    $field = [$field];
-                }
-                foreach($field as $attachment_id){
-                    $attachment_id = intval($attachment_id);
-                    if(Media::deleteAttachment($attachment_id, $author_id)){
-                        $resp['deleted'][$key][] = $attachment_id;
-                    }
-                }
-            }
-        }
-        
-        if(!empty($files)){
-            foreach($files as $key => $file){
-                if(!empty($file)){
-                    foreach($file as $i => $file_item){
-                        $save_name = str_replace('_', '-', $key) . '-p' . $this->ID . '-u' . $author_id . '-' . $i . '.' . $file_item['ext'];
-                        $attachment_id = Media::saveAttachment($file_item, $save_name, $author_id, $this->ID);
-                        if($attachment_id){
-                            $resp['saved'][$key][] = $attachment_id;
-                        }
-                    }
-                }
-            }
-        }
-        
-        if(!$update_meta){
-            return $resp;
-        }
-        
-        if(!empty($resp['saved'])){
-            foreach($resp['saved'] as $key => $attachment_ids){
-                if(!empty($this->fields_config[$key]['multiple'])){
-                    $attachment_ids_meta = array_merge($attachment_ids, $this->get($key, []));
-                    $this->meta[$key][0] = $attachment_ids_meta;
-                    update_user_meta($this->ID, $key, $attachment_ids_meta);
-                }else{
-                    $this->meta[$key][0] = $attachment_ids[0];
-                    update_user_meta($this->ID, $key, $attachment_ids[0]);
-                }
-            }
-        }
-        
-        if(!empty($resp['deleted'])){
-            foreach($resp['deleted'] as $key => $attachment_ids){
-                if(!empty($this->fields_config[$key]['multiple'])){
-                    $attachment_ids_meta = array_diff($this->get($key, []), $attachment_ids);
-                    if(empty($attachment_ids_meta)){
-                        if(isset($this->meta[$key])){
-                            unset($this->meta[$key]);
-                        }
-                        delete_user_meta($this->ID, $key);
-                    }else{
-                        $this->meta[$key][0] = $attachment_ids_meta;
-                        update_user_meta($this->ID, $key, $attachment_ids_meta);
-                    }
-                }else{
-                    $attachment_ids_meta = intval($this->get($key));
-                    if($attachment_ids_meta === $attachment_ids[0]){
-                        if(isset($this->meta[$key])){
-                            unset($this->meta[$key]);
-                        }
-                        delete_user_meta($this->ID, $key);
-                    }
-                }
-            }
-        }
-        
-        return $resp;
-    }
-    
 }
