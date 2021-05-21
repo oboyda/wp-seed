@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\Entity'))
+if(!class_exists('\WPSEED\User'))
 {
     class User 
     {
@@ -18,7 +18,7 @@ if(!class_exists('\WPSEED\Entity'))
         
         /*
         --------------------------------------------------
-        Construct the Post object
+        Construct the User object
 
         @param object|int $user WP_User instance or user ID.
         @param array $props_config['key'] = [
@@ -101,9 +101,9 @@ if(!class_exists('\WPSEED\Entity'))
         /*
         --------------------------------------------------
         Set data type properties. 
-        Data properties map to WP_Post object properties;
+        Data properties map to WP_User object properties;
 
-        @param string $key as in WP_Post object
+        @param string $key as in WP_User object
         @param mixed $value
 
         @return void
@@ -219,7 +219,7 @@ if(!class_exists('\WPSEED\Entity'))
 
         /*
         --------------------------------------------------
-        Get WP_Post ID from $this->id
+        Get WP_User ID from $this->id
 
         @return int
         --------------------------------------------------
@@ -233,7 +233,7 @@ if(!class_exists('\WPSEED\Entity'))
         --------------------------------------------------
         Get data type properties
 
-        @param string|null $key as in WP_Post object
+        @param string|null $key as in WP_User object
         @param mixed $default Default value to return
 
         @return mixed If $key=null all data values will be returned
