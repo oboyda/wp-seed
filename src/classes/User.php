@@ -377,7 +377,7 @@ if(!class_exists('\WPSEED\User'))
         @return void
         --------------------------------------------------
         */
-        public function persist($password=null)
+        public function persist()
         {
             $id = 0;
 
@@ -397,11 +397,14 @@ if(!class_exists('\WPSEED\User'))
                 $data = $this->get_data();
                 $meta = $this->get_meta(null, true);
 
+                $password = $data['user_pass'];
+                unset($data['user_pass']);
+
                 if(!empty($data['ID']))
                 {
                     $id = wp_update_user($data);
                 }
-                elseif(isset($password))
+                elseif(!empty($password))
                 {
                     $data['user_pass'] = $password;
                     $id = wp_insert_user($data);

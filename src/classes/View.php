@@ -37,6 +37,11 @@ if(!class_exists('\WPSEED\View'))
         {
             return $this->id;
         }
+
+        public function getName()
+        {
+            return __CLASS__;
+        }
             
     }
 }
