@@ -467,42 +467,34 @@ if(!class_exists('\WPSEED\Entity'))
 
         /*
         --------------------------------------------------
-        Default method to get values from $this->data or $this->meta
-        Example from data: get_title(), get_content();
-        Example from meta: get_meta1(), get__meta2();
+        Get prop from $this->data or $this->meta
 
         @return mixed
         --------------------------------------------------
         */
-        public function __call($name, $args)
-        {
-            if(strpos($name, 'get_') === 0)
-            {
-                $key = substr($name, strlen('get_'));
-                $prop_config = $this->get_props_config($key);
 
-                if(array_key_exists($key, $this->data))
-                {
-                    $default = isset($args[0]) ? $args[0] : null;
-                    return $this->get_data($key, $default);
-                }
-                elseif(array_key_exists($key, $this->meta))
-                {
-                    $single = isset($args[0]) ? $args[0] : true;
-                    $default = isset($args[1]) ? $args[1] : null;
-                    return $this->get_meta($key, $single, $default);
-                }
-                elseif(array_key_exists($key, $this->terms))
-                {
-                    $default = isset($args[0]) ? $args[0] : null;
-                    return $this->get_terms($key, $default);
-                }
-                elseif(isset($prop_config) && $prop_config['type'] === 'attachment')
-                {
-                    $default = isset($args[0]) ? $args[0] : null;
-                    return $this->get_attachments($key, $default);
-                }
+        public function get_prop($key, $default=null, $single=false)
+        {
+            $prop_config = $this->get_props_config($key);
+
+            if(array_key_exists($key, $this->data))
+            {
+                return $this->get_data($key, $default);
             }
+            elseif(array_key_exists($key, $this->meta))
+            {
+                return $this->get_meta($key, $single, $default);
+            }
+            elseif(array_key_exists($key, $this->terms))
+            {
+                return $this->get_terms($key, $default);
+            }
+            elseif(isset($prop_config) && $prop_config['type'] === 'attachment')
+            {
+                return $this->get_attachments($key, $default);
+            }
+
+            return null;
         }
 
         /*
