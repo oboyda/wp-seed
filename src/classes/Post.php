@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\Post'))
+if(!class_exists(__NAMESPACE__ . '\Post'))
 {
     class Post extends Entity
     {

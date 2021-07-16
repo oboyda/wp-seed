@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\User'))
+if(!class_exists(__NAMESPACE__ . '\User'))
 {
     class User 
     {

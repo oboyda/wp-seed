@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\Attachment'))
+if(!class_exists(__NAMESPACE__ . '\Attachment'))
 {
     class Attachment extends Entity
     {

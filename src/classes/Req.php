@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\Req'))
+if(!class_exists(__NAMESPACE__ . '\Req'))
 {
     class Req {
 

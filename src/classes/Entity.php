@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\Entity'))
+if(!class_exists(__NAMESPACE__ . '\Entity'))
 {
     class Entity 
     {

@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\View'))
+if(!class_exists(__NAMESPACE__ . '\View'))
 {
     class View {
         
