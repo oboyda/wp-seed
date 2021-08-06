@@ -40,7 +40,12 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
         public function getName()
         {
-            return __CLASS__;
+            $name = str_replace('\\', '/', __CLASS__);
+            $name = str_replace('_', '-', $name);
+            $name = strtolower($name);
+            $name = basename($name);
+            
+            return $name;
         }
             
     }
