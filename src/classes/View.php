@@ -37,16 +37,5 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         {
             return $this->id;
         }
-
-        public function getName()
-        {
-            $name = str_replace('\\', '/', __CLASS__);
-            $name = str_replace('_', '-', $name);
-            $name = strtolower($name);
-            $name = basename($name);
-            
-            return $name;
-        }
-            
     }
 }
