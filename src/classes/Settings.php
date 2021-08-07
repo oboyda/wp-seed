@@ -144,13 +144,21 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
                     <?php break;
                 case 'select': ?>
                     <select name="<?php echo $option_name; ?>">
-                        <?php foreach($args['field_config']['options'] as $option){ ?>
+                        <?php foreach((array) $args['field_config']['options'] as $option){ ?>
                         <option value="<?php echo $option; ?>" <?php selected($this->get_option($args['field_id']), $option); ?>><?php echo $option; ?></option>
                         <?php } ?>
                     </select>
                     <?php break;
                 case 'checkbox': ?>
                     <input name="<?php echo $option_name; ?>" type="checkbox" value="1" <?php checked($this->get_option($args['field_id']), 1); ?>/>
+                    <?php break;
+                case 'checkbox_multiple': ?>
+                    <?php foreach((array) $args['field_config']['options'] as $value => $option){ ?>
+                    <p>
+                        <input id="<?php echo $option_name . '-' . $value; ?>" name="<?php echo $option_name; ?>" type="checkbox" value="<?php echo $value; ?>" <?php checked(in_array($value, (array)$this->get_option($args['field_id'])), true); ?> />
+                        <label for="<?php echo $option_name . '-' . $value; ?>"><?php echo $option; ?></label>
+                    </p>
+                    <?php } ?>
                     <?php break;
             }
             if(isset($args['field_config']['description']) && $args['field_config']['description'] != ''){ ?>
