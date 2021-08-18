@@ -144,8 +144,8 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
                     <?php break;
                 case 'select': ?>
                     <select name="<?php echo $option_name; ?>">
-                        <?php foreach((array) $args['field_config']['options'] as $option){ ?>
-                        <option value="<?php echo $option; ?>" <?php selected($this->get_option($args['field_id']), $option); ?>><?php echo $option; ?></option>
+                        <?php foreach((array) $args['field_config']['options'] as $value => $option){ ?>
+                        <option value="<?php echo $value; ?>" <?php selected($this->get_option($args['field_id']), $value); ?>><?php echo $option; ?></option>
                         <?php } ?>
                     </select>
                     <?php break;
