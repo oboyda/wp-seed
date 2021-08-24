@@ -37,7 +37,10 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function __construct($post=null, $props_config=[])
         {
-            $this->prop_types = ['data', 'meta', 'term', 'attachment'];
+            if(!isset($this->prop_types))
+            {
+                $this->prop_types = ['data', 'meta', 'term', 'attachment'];
+            }
 
             $this->_set_data($post);
             $this->_set_meta();
@@ -45,12 +48,17 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             $this->_set_attachments();
             $this->_set_props_config($props_config);
         }
-
+        
         /*
         --------------------------------------------------
         Init & setter methods
         --------------------------------------------------
         */
+        
+        protected function _set_prop_types($prop_types)
+        {
+            $this->prop_types = $prop_types;
+        }
 
         protected function _set_data($post=null)
         {
@@ -79,9 +87,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             if($this->id)
             {
                 $meta = get_post_meta($this->id);
-                foreach((array)$meta as $key => $m)
+                foreach((array)$meta as $key => $meta_item)
                 {
-                    foreach((array)$meta as $i => $m)
+                    foreach((array)$meta_item as $i => $m)
                     {
                         $this->meta[$key][$i] = maybe_unserialize($m);
                     }
@@ -336,6 +344,18 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         public function get_id()
         {
             return $this->id;
+        }
+        
+        /*
+        --------------------------------------------------
+        Get post_type from $this->data
+
+        @return int
+        --------------------------------------------------
+        */
+        public function get_type()
+        {
+            return $this->get_data('post_type');
         }
 
         /*

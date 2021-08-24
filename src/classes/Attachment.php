@@ -6,6 +6,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 {
     class Attachment extends Entity
     {
+        private $parent_id;
         private $file_data;
         private $metadata;
         private $base_url;
@@ -28,12 +29,13 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         @return void
         --------------------------------------------------
         */
-        public function __construct($post=null, $file_data=[], $props_config=[])
+        public function __construct($post=null, $props_config=[], $parent_id=0, $file_data=[])
         {
-            $this->prop_types = ['data', 'meta'];
-
+            $this->_set_prop_types(['data', 'meta']);
+            $this->parent_id = $parent_id;
+            
             parent::__construct($post, $props_config);
-
+            
             $this->_set_metadata();
             
             $this->file_data = $file_data;
@@ -145,6 +147,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             {
                 $data = $this->data;
 
+                $data['post_parent'] = $this->parent_id;
                 $data['meta_input'] = $this->get_meta(null, true);
 
                 $id = wp_update_post($data);
@@ -156,22 +159,22 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 
                 $tmp_dir = sys_get_temp_dir();
                 
-                if(strpos($file['tmp_name'], $tmp_dir) === 0)
+                if(strpos($this->file_data['tmp_name'], $tmp_dir) === 0)
                 {
-                    move_uploaded_file($file['tmp_name'], $save_path);
+                    move_uploaded_file($this->file_data['tmp_name'], $save_path);
                 }
                 else
                 {
-                    copy($file['tmp_name'], $save_path);
-                    unlink($file['tmp_name']);
+                    copy($this->file_data['tmp_name'], $save_path);
+                    unlink($this->file_data['tmp_name']);
                 }
 
                 if(file_exists($save_path))
                 {
-                    $type = $file['type'];
+                    $type = $this->file_data['type'];
 
                     $this->set_data('guid', $this->base_url . '/' . $save_name);
-                    $this->set_data('post_mime_type', $file['type']);
+                    $this->set_data('post_mime_type', $this->file_data['type']);
                     $this->set_data('post_title', $save_name);
                     //$this->set_data('post_content', '');
                     $this->set_data('post_status', 'inherit');
@@ -179,9 +182,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                     $data = $this->get_data();
                     $data['meta_input'] = $this->get_meta(null, true);
                     
-                    $parent_id = (int)$this->get_data('post_parent');
-
-                    $id = wp_insert_attachment($data, $save_path, $parent_id);
+                    $id = wp_insert_attachment($data, $save_path, $this->parent_id);
                 }
                 
                 if($id)
@@ -196,8 +197,9 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             {
                 $this->__construct(
                     $id, 
-                    [],
-                    $this->props_config
+                    $this->props_config,
+                    $this->parent_id,
+                    []
                 );
             }
         }

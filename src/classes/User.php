@@ -36,18 +36,26 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function __construct($user=null, $props_config=[])
         {
-            $this->prop_types = ['data', 'meta'];
+            if(!isset($this->prop_types))
+            {
+                $this->prop_types = ['data', 'meta'];
+            }
 
             $this->_set_data($user);
             $this->_set_meta();
             $this->_set_props_config($props_config);
         }
-
+        
         /*
         --------------------------------------------------
         Init & setter methods
         --------------------------------------------------
         */
+        
+        protected function _set_prop_types($prop_types)
+        {
+            $this->prop_types = $prop_types;
+        }
 
         protected function _set_data($user=null)
         {
