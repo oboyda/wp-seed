@@ -64,7 +64,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                 'view'
             ];
             
-            $view_name = str_replace('_', '-', basename(str_replace('\\', '/', get_called_class())));
+            $view_name = strtolower(str_replace('_', '-', basename(str_replace('\\', '/', get_called_class()))));
             
             $classes[] = $view_name;
             
