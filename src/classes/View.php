@@ -22,7 +22,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             
             foreach($this->args as $name => $arg)
             {
-                $this->$name = $arg;
+                if(!isset($this->$name)) $this->$name = $arg;
             }
         }
         
