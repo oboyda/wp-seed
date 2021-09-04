@@ -31,7 +31,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
          * 
          * @return mixed
          */
-        public function __call($name)
+        public function __call($name, $args)
         {
             if(strpos($name, 'get_') === 0)
             {
