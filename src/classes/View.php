@@ -103,7 +103,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                     $merge_classes = explode(' ', $merge_classes);
                 }
                 
-                $classes = array_merge($classes, explode(' ', $merge_classes));
+                $classes = array_merge($classes, $merge_classes);
             }
             
             return implode(' ', $classes);
