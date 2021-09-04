@@ -19,6 +19,34 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         {
             $this->id = $this->genId();
             $this->args = empty($default_args) ? $args : wp_parse_args($args, $default_args);
+            
+            foreach($this->args as $name => $arg)
+            {
+                $this->$name = $arg;
+            }
+        }
+        
+        /* 
+         * Magic method for getting (get_[property_name]) and checking (has_[property_name]) object properties
+         * 
+         * @return mixed
+         */
+        public function __call($name)
+        {
+            if(strpos($name, 'get_') === 0)
+            {
+                $var = substr($name, strlen('get_'));
+                
+                return isset($this->$var) ? $this->$var : null;
+            }
+            elseif(strpos($name, 'has_') === 0){
+                
+                $var = substr($name, strlen('has_'));
+                
+                return !empty($this->$var);
+            }
+            
+            return null;
         }
 
         /* 
