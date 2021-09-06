@@ -81,6 +81,18 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
         
         /* 
+         * Get view name
+         * 
+         * @return str
+         */
+        public function getName($underscore = false)
+        {
+            $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
+            
+            return !$underscore ? $name : str_replace('_', '-', $name);
+        }
+        
+        /* 
          * Get current view classes
          * 
          * @param str|array $merge_classes
@@ -92,7 +104,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                 'view'
             ];
             
-            $view_name = strtolower(str_replace('_', '-', basename(str_replace('\\', '/', get_called_class()))));
+            $view_name = $this->getName();
             
             $classes[] = $view_name;
             
