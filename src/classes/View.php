@@ -89,7 +89,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         {
             $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
             
-            return !$underscore ? $name : str_replace('_', '-', $name);
+            return $underscore ? $name : str_replace('_', '-', $name);
         }
         
         /* 
