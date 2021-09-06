@@ -98,7 +98,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
          * @param str|array $merge_classes
          * @return str
          */
-        public function getClasses($merge_classes=null)
+        public function getHtmlClass($merge_classes=null)
         {
             $classes = [
                 'view'
