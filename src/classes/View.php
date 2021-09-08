@@ -20,6 +20,15 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             $this->id = $this->genId();
             $this->args = empty($default_args) ? $args : wp_parse_args($args, $default_args);
             
+            $this->setArgsToProps();
+        }
+        
+        /* 
+         * Set $this->args to object properties
+         * 
+         */
+        protected function setArgsToProps()
+        {
             foreach($this->args as $name => $arg)
             {
                 if(!isset($this->$name)) $this->$name = $arg;
