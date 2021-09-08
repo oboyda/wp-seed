@@ -43,7 +43,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                 
                 $var = substr($name, strlen('has_'));
                 
-                return !empty($this->$var);
+                return isset($this->$var) ? (is_bool($this->$var) ? $this->$var : !empty($this->$var)) : false;
             }
             
             return null;
