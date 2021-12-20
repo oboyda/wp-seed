@@ -27,11 +27,11 @@ if(!class_exists(__NAMESPACE__ . '\View'))
          * Set $this->args to object properties
          * 
          */
-        protected function setArgsToProps()
+        protected function setArgsToProps($force_set=false)
         {
             foreach($this->args as $name => $arg)
             {
-                if(!isset($this->$name)) $this->$name = $arg;
+                if(!isset($this->$name) || $force_set) $this->$name = $arg;
             }
         }
         
