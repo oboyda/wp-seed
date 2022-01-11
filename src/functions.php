@@ -70,3 +70,116 @@ if(!function_exists('wpseed_print_view'))
         wpseed_get_view($view_name, $args, true);
     }
 }
+
+if(!function_exists('wpseed_get_dir_files'))
+{
+    /*
+     * Retrieves dir files
+     * 
+     * @param $dir string
+     * @param $full_path bool
+     * @param $skip_dirs bool
+     * @return array
+     */
+    function wpseed_get_dir_files($dir, $full_path=true, $skip_dirs=true)
+    {
+        $dir = rtrim($dir, '/');
+        
+        $files = [];
+        
+        $scan_files = scandir($dir);
+
+        foreach($scan_files as $file)
+        {
+            if(!in_array($file, ['.', '..']) && substr($file, 0, 2) !== '__')
+            {
+                $file_path = $dir . '/' . $file;
+
+                if($skip_dirs && is_dir($scan_file))
+                {
+                    continue;
+                }
+
+                $files[] = $full_path ? $file_path : $file;
+            }
+        }
+        
+        return $files;
+    }
+}
+
+if(!function_exists('wpseed_require_dir_files'))
+{
+    /*
+     * Includes directory files
+     * 
+     * @param $dir string
+     * @return void
+     */
+    function wpseed_require_dir_files($dir)
+    {
+        $files = wpseed_get_dir_files($dir, true, true);
+        
+        if($files)
+        {
+            foreach($files as $file)
+            {
+                require_once $file;
+            }
+        }
+    }
+}
+
+if(!function_exists('wpseed_get_file_class_name'))
+{
+    /*
+     * Get class name from file name
+     * 
+     * @param $file string
+     * @return string
+     */
+    function wpseed_get_file_class_name($file)
+    {
+        $file_name = basename($file);
+        $file_name = substr($file_name, 0, strlen($file_name)-strlen('.php'));
+        $file_name = str_replace('-', ' ', $file_name);
+        $file_name = ucwords($file_name);
+        $file_name = str_replace(' ', '_', $file_name);
+        
+        return $file_name;
+    }
+}
+
+if(!function_exists('wpseed_load_dir_classes'))
+{
+    /*
+     * Load dir files and instantiates classes
+     * 
+     * @param $dir string
+     * @param $namespace string
+     * @param $load_files bool
+     * @return void
+     */
+    function wpseed_load_dir_classes($dir, $namespace='', $load_files=false)
+    {
+        $files = wpseed_get_dir_files($dir);
+        
+        if($files)
+        {
+            foreach($files as $file)
+            {
+                if($load_files)
+                {
+                    require_once $file;
+                }
+                
+                $class_name =  $namespace . '\\' . wpseed_get_file_class_name($file);
+                
+                if(class_exists($class_name))
+                {
+                    new $class_name();
+                }
+            }
+        }
+    }
+}
