@@ -143,6 +143,7 @@ if(!function_exists('wpseed_get_file_class_name'))
         $file_name = basename($file);
         $file_name = substr($file_name, 0, strlen($file_name)-strlen('.php'));
         $file_name = str_replace('-', ' ', $file_name);
+        $file_name = str_replace('_', ' ', $file_name);
         $file_name = ucwords($file_name);
         $file_name = str_replace(' ', '_', $file_name);
         
