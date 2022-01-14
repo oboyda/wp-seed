@@ -108,7 +108,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $taxonomies = get_object_taxonomies($this->get_type());
                 foreach((array)$taxonomies as $taxonomy)
                 {
-                    $terms = get_object_terms($this->id, $taxonomy, ['fields' => 'ids']);
+                    $terms = wp_get_object_terms($this->id, $taxonomy, ['fields' => 'ids']);
                     $this->terms[$taxonomy] = is_wp_error($terms) ? [] : $terms;
                 }
             }
