@@ -71,7 +71,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             {
                 $this->id = $_user->ID;
                 $this->data = (array)$_user->data;
-                if(isset($_user->roles[0])) $thid->role = $_user->roles[0];
+                if(isset($_user->roles[0])) $this->role = $_user->roles[0];
             }
         }
 
