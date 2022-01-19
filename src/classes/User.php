@@ -84,9 +84,9 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             if($this->id)
             {
                 $meta = get_user_meta($this->id);
-                foreach((array)$meta as $key => $m)
+                foreach((array)$meta as $key => $meta_item)
                 {
-                    foreach((array)$meta as $i => $m)
+                    foreach((array)$meta_item as $i => $m)
                     {
                         $this->meta[$key][$i] = maybe_unserialize($m);
                     }
