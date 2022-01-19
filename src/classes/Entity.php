@@ -410,7 +410,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $meta = (isset($default) && empty($meta)) ? $default : $meta;
 
-            return $single && isset($meta[0]) ? $meta[0] : $meta;
+            return ($single && isset($meta[0])) ? $meta[0] : $meta;
         }
 
         /*

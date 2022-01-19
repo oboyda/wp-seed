@@ -301,7 +301,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
 
             $meta = (isset($default) && empty($meta)) ? $default : $meta;
 
-            return $single && isset($meta[0]) ? $meta[0] : $meta;
+            return ($single && isset($meta[0])) ? $meta[0] : $meta;
         }
 
         /*
