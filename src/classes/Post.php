@@ -52,6 +52,10 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     {
                         $data['post_type'] = $this->post_type;
                     }
+                    if(!isset($data['post_status']))
+                    {
+                        $data['post_status'] = 'publish';
+                    }
     
                     $id = wp_insert_post($data);
                 }
