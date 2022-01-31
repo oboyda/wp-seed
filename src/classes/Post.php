@@ -48,6 +48,11 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
                 if(empty($data['ID']))
                 {
+                    if(isset($this->post_type))
+                    {
+                        $data['post_type'] = $this->post_type;
+                    }
+    
                     $id = wp_insert_post($data);
                 }
                 else{

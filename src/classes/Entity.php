@@ -7,6 +7,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
     class Entity 
     {
         protected $id;
+        protected $post_type;
         protected $permalink;
 
         protected $prop_types;
@@ -73,6 +74,10 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             if(is_a($_post, 'WP_Post'))
             {
                 $this->id = $_post->ID;
+                if(!isset($this->post_type))
+                {
+                    $this->post_type = $_post['post_type'];
+                }
                 $this->data = (array)$_post;
                 $this->permalink = get_permalink($this->id);
             }
