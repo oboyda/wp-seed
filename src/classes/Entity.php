@@ -218,10 +218,10 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             
             if($single)
             {
-                $this->meta[$key] = [$value];
+                $this->meta[$key] = $value;
             }
             else{
-                $this->meta[$key] = $value;
+                $this->meta[$key] = [$value];
             }
         }
 
