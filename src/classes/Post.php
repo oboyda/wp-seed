@@ -40,23 +40,25 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         {
             $id = 0;
 
-            if(!empty($this->data))
+            $data = $this->data;
+
+            if(!empty($this->meta))
             {
-                $data = $this->get_data();
-
                 $data['meta_input'] = $this->get_meta(null, true);
+            }
+            if(!isset($data['post_status']))
+            {
+                $data['post_status'] = 'publish';
+            }
 
+            if(!empty($data))
+            {
                 if(empty($data['ID']))
                 {
                     if(isset($this->post_type))
                     {
                         $data['post_type'] = $this->post_type;
                     }
-                    if(!isset($data['post_status']))
-                    {
-                        $data['post_status'] = 'publish';
-                    }
-    
                     $id = wp_insert_post($data);
                 }
                 else{
