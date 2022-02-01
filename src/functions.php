@@ -14,10 +14,10 @@ if(!function_exists('wpseed_get_view'))
      * @return string|void 
      */
 
-    function wpseed_get_view($view_name, $args=[], $echo=false)
+    function wpseed_get_view($view_name, $args=[], $echo=false, $_views_dir=null, $_views_namespace=null)
     {
-        $views_dir = apply_filters('wpseed_views_dir', get_stylesheet_directory() . '/views');
-        $views_namespace = apply_filters('wpseed_views_namespace', '\View');
+        $views_dir = isset($_views_dir) ? $_views_dir : apply_filters('wpseed_views_dir', get_stylesheet_directory() . '/views');
+        $views_namespace = isset($_views_namespace) ? $_views_namespace : apply_filters('wpseed_views_namespace', '\View');
 
         $view_path = $views_dir . '/' . $view_name . '.php';
         $view_class = str_replace(' ', '_', ucwords(str_replace('-', ' ', $view_name)));
