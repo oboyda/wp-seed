@@ -214,7 +214,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             if(!(isset($prop_config) && $prop_config['type'] === 'meta')) return;
 
-            if(!(isset($prop_config['options']) && in_array($value, $prop_config['options']))) return;
+            if(!(!isset($prop_config['options']) || isset($prop_config['options'][$value]))) return;
             
             if($single)
             {
