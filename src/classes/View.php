@@ -18,7 +18,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         public function __construct($args=[], $default_args=[])
         {
             $this->args = empty($default_args) ? $args : wp_parse_args($args, $default_args);
-            $this->id = isset($this->args['id']) ? $this->args['id'] : $this->genId();
+            $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
             
             $this->setArgsToProps();
         }
