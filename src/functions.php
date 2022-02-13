@@ -95,7 +95,7 @@ if(!function_exists('wpseed_get_dir_files'))
             {
                 $file_path = $dir . '/' . $file;
 
-                if($skip_dirs && is_dir($scan_file))
+                if($skip_dirs && is_dir($file_path))
                 {
                     continue;
                 }
