@@ -404,7 +404,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             
             if(!isset($key))
             {
-                if(!$single)
+                if($single)
                 {
                     $meta = [];
                     foreach($this->meta as $_key => $_meta)
