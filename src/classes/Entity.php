@@ -215,13 +215,18 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             if(!(isset($prop_config) && $prop_config['type'] === 'meta')) return;
 
             if(!(!isset($prop_config['options']) || isset($prop_config['options'][$value]))) return;
-            
+
+            if(!isset($this->meta[$key]))
+            {
+                $this->meta[$key] = [];
+            }
+
             if($single)
             {
-                $this->meta[$key] = $value;
+                $this->meta[$key] = [$value];
             }
             else{
-                $this->meta[$key] = [$value];
+                $this->meta[$key][] = $value;
             }
         }
 

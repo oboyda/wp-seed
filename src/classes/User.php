@@ -173,12 +173,17 @@ if(!class_exists(__NAMESPACE__ . '\User'))
 
             if(!(isset($prop_config['options']) && in_array($value, $prop_config['options']))) return;
             
+            if(!isset($this->meta[$key]))
+            {
+                $this->meta[$key] = [];
+            }
+
             if($single)
             {
                 $this->meta[$key] = [$value];
             }
             else{
-                $this->meta[$key] = $value;
+                $this->meta[$key][] = $value;
             }
         }
 
