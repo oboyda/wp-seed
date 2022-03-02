@@ -20,7 +20,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             $this->args = empty($default_args) ? $args : wp_parse_args($args, $default_args);
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
             
-            $this->setArgsToProps();
+            // $this->setArgsToProps();
         }
         
         /* 
@@ -46,12 +46,14 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             {
                 $var = substr($name, strlen('get_'));
                 
+                return isset($this->args[$var]) ? $this->args[$var] : null;
                 return isset($this->$var) ? $this->$var : null;
             }
             elseif(strpos($name, 'has_') === 0){
                 
                 $var = substr($name, strlen('has_'));
                 
+                return isset($this->args[$var]) ? (is_bool($this->args[$var]) ? $this->args[$var] : !empty($this->args[$var])) : false;
                 return isset($this->$var) ? (is_bool($this->$var) ? $this->$var : !empty($this->$var)) : false;
             }
             
