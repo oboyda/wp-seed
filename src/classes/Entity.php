@@ -365,7 +365,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function get_type()
         {
-            return $this->get_data('post_type');
+            // return $this->get_data('post_type');
+            return $this->post_type;
         }
 
         /*

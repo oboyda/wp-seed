@@ -60,9 +60,11 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                         $data['post_type'] = $this->post_type;
                     }
                     $id = wp_insert_post($data);
+                    do_action('wpseed_post_inserted', $id, $this);
                 }
                 else{
                     $id = wp_update_post($data);
+                    do_action('wpseed_post_updated', $id, $this);
                 }
             }
 
@@ -81,6 +83,8 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     $this->props_config
                 );
             }
+
+            do_action('wpseed_post_persisted', $id, $this);
         }
 
         /*
