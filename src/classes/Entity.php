@@ -385,7 +385,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             
             if(!isset($key)) return $this->data;
 
-            return (isset($default) && empty($this->data[$key])) ? $default : $this->data[$key];
+            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
         }
 
         /*
@@ -419,7 +419,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $meta = isset($this->meta[$key]) ? $this->meta[$key] : false;
 
-            $meta = (isset($default) && empty($meta)) ? $default : $meta;
+            $meta = (empty($meta) && isset($default)) ? $default : $meta;
 
             return ($single && isset($meta[0])) ? $meta[0] : $meta;
         }
