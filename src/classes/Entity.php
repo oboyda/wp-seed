@@ -76,7 +76,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $this->id = $_post->ID;
                 if(!isset($this->post_type))
                 {
-                    $this->post_type = $_post['post_type'];
+                    $this->post_type = $_post->post_type;
                 }
                 $this->data = (array)$_post;
                 $this->permalink = get_permalink($this->id);
