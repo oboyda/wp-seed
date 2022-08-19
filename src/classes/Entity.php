@@ -2,11 +2,12 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\Entity'))
+if(!class_exists(__NAMESPACE__ . '\Entity'))
 {
     class Entity 
     {
         protected $id;
+        protected $post_type;
         protected $permalink;
 
         protected $prop_types;
@@ -37,7 +38,10 @@ if(!class_exists('\WPSEED\Entity'))
         */
         public function __construct($post=null, $props_config=[])
         {
-            $this->prop_types = ['data', 'meta', 'term', 'attachment'];
+            if(!isset($this->prop_types))
+            {
+                $this->prop_types = ['data', 'meta', 'term', 'attachment'];
+            }
 
             $this->_set_data($post);
             $this->_set_meta();
@@ -45,12 +49,17 @@ if(!class_exists('\WPSEED\Entity'))
             $this->_set_attachments();
             $this->_set_props_config($props_config);
         }
-
+        
         /*
         --------------------------------------------------
         Init & setter methods
         --------------------------------------------------
         */
+        
+        protected function _set_prop_types($prop_types)
+        {
+            $this->prop_types = $prop_types;
+        }
 
         protected function _set_data($post=null)
         {
@@ -65,6 +74,10 @@ if(!class_exists('\WPSEED\Entity'))
             if(is_a($_post, 'WP_Post'))
             {
                 $this->id = $_post->ID;
+                if(!isset($this->post_type))
+                {
+                    $this->post_type = $_post->post_type;
+                }
                 $this->data = (array)$_post;
                 $this->permalink = get_permalink($this->id);
             }
@@ -79,9 +92,9 @@ if(!class_exists('\WPSEED\Entity'))
             if($this->id)
             {
                 $meta = get_post_meta($this->id);
-                foreach((array)$meta as $key => $m)
+                foreach((array)$meta as $key => $meta_item)
                 {
-                    foreach((array)$meta as $i => $m)
+                    foreach((array)$meta_item as $i => $m)
                     {
                         $this->meta[$key][$i] = maybe_unserialize($m);
                     }
@@ -100,7 +113,7 @@ if(!class_exists('\WPSEED\Entity'))
                 $taxonomies = get_object_taxonomies($this->get_type());
                 foreach((array)$taxonomies as $taxonomy)
                 {
-                    $terms = get_object_terms($this->id, $taxonomy, ['fields' => 'ids']);
+                    $terms = wp_get_object_terms($this->id, $taxonomy, ['fields' => 'ids']);
                     $this->terms[$taxonomy] = is_wp_error($terms) ? [] : $terms;
                 }
             }
@@ -201,14 +214,19 @@ if(!class_exists('\WPSEED\Entity'))
 
             if(!(isset($prop_config) && $prop_config['type'] === 'meta')) return;
 
-            if(!(isset($prop_config['options']) && in_array($value, $prop_config['options']))) return;
-            
+            if(!(!isset($prop_config['options']) || isset($prop_config['options'][$value]))) return;
+
+            if(!isset($this->meta[$key]))
+            {
+                $this->meta[$key] = [];
+            }
+
             if($single)
             {
                 $this->meta[$key] = [$value];
             }
             else{
-                $this->meta[$key] = $value;
+                $this->meta[$key][] = $value;
             }
         }
 
@@ -337,6 +355,19 @@ if(!class_exists('\WPSEED\Entity'))
         {
             return $this->id;
         }
+        
+        /*
+        --------------------------------------------------
+        Get post_type from $this->data
+
+        @return int
+        --------------------------------------------------
+        */
+        public function get_type()
+        {
+            // return $this->get_data('post_type');
+            return $this->post_type;
+        }
 
         /*
         --------------------------------------------------
@@ -354,7 +385,7 @@ if(!class_exists('\WPSEED\Entity'))
             
             if(!isset($key)) return $this->data;
 
-            return (isset($default) && empty($this->data[$key])) ? $default : $this->data[$key];
+            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
         }
 
         /*
@@ -374,7 +405,7 @@ if(!class_exists('\WPSEED\Entity'))
             
             if(!isset($key))
             {
-                if(!$single)
+                if($single)
                 {
                     $meta = [];
                     foreach($this->meta as $_key => $_meta)
@@ -388,9 +419,9 @@ if(!class_exists('\WPSEED\Entity'))
 
             $meta = isset($this->meta[$key]) ? $this->meta[$key] : false;
 
-            $meta = (isset($default) && empty($meta)) ? $default : $meta;
+            $meta = (empty($meta) && isset($default)) ? $default : $meta;
 
-            return $single && isset($meta[0]) ? $meta[0] : $meta;
+            return ($single && isset($meta[0])) ? $meta[0] : $meta;
         }
 
         /*

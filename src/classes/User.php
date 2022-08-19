@@ -2,7 +2,7 @@
 
 namespace WPSEED;
 
-if(!class_exists('\WPSEED\User'))
+if(!class_exists(__NAMESPACE__ . '\User'))
 {
     class User 
     {
@@ -36,18 +36,26 @@ if(!class_exists('\WPSEED\User'))
         */
         public function __construct($user=null, $props_config=[])
         {
-            $this->prop_types = ['data', 'meta'];
+            if(!isset($this->prop_types))
+            {
+                $this->prop_types = ['data', 'meta'];
+            }
 
             $this->_set_data($user);
             $this->_set_meta();
             $this->_set_props_config($props_config);
         }
-
+        
         /*
         --------------------------------------------------
         Init & setter methods
         --------------------------------------------------
         */
+        
+        protected function _set_prop_types($prop_types)
+        {
+            $this->prop_types = $prop_types;
+        }
 
         protected function _set_data($user=null)
         {
@@ -63,7 +71,7 @@ if(!class_exists('\WPSEED\User'))
             {
                 $this->id = $_user->ID;
                 $this->data = (array)$_user->data;
-                if(isset($_user->roles[0])) $thid->role = $_user->roles[0];
+                if(isset($_user->roles[0])) $this->role = $_user->roles[0];
             }
         }
 
@@ -76,9 +84,9 @@ if(!class_exists('\WPSEED\User'))
             if($this->id)
             {
                 $meta = get_user_meta($this->id);
-                foreach((array)$meta as $key => $m)
+                foreach((array)$meta as $key => $meta_item)
                 {
-                    foreach((array)$meta as $i => $m)
+                    foreach((array)$meta_item as $i => $m)
                     {
                         $this->meta[$key][$i] = maybe_unserialize($m);
                     }
@@ -165,12 +173,17 @@ if(!class_exists('\WPSEED\User'))
 
             if(!(isset($prop_config['options']) && in_array($value, $prop_config['options']))) return;
             
+            if(!isset($this->meta[$key]))
+            {
+                $this->meta[$key] = [];
+            }
+
             if($single)
             {
                 $this->meta[$key] = [$value];
             }
             else{
-                $this->meta[$key] = $value;
+                $this->meta[$key][] = $value;
             }
         }
 
@@ -245,7 +258,7 @@ if(!class_exists('\WPSEED\User'))
             
             if(!isset($key)) return $this->data;
 
-            return (isset($default) && empty($this->data[$key])) ? $default : $this->data[$key];
+            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
         }
 
         /*
@@ -277,7 +290,7 @@ if(!class_exists('\WPSEED\User'))
             
             if(!isset($key))
             {
-                if(!$single)
+                if($single)
                 {
                     $meta = [];
                     foreach($this->meta as $_key => $_meta)
@@ -291,9 +304,9 @@ if(!class_exists('\WPSEED\User'))
 
             $meta = isset($this->meta[$key]) ? $this->meta[$key] : false;
 
-            $meta = (isset($default) && empty($meta)) ? $default : $meta;
+            $meta = (empty($meta) && isset($default)) ? $default : $meta;
 
-            return $single && isset($meta[0]) ? $meta[0] : $meta;
+            return ($single && isset($meta[0])) ? $meta[0] : $meta;
         }
 
         /*
