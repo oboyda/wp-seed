@@ -6,8 +6,9 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 {
     class View {
         
-        var $id;
         var $args;
+        var $id;
+        var $html_class;
             
         /*
         * Construct the View object
@@ -19,8 +20,9 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         {
             $this->args = empty($default_args) ? $args : wp_parse_args($args, $default_args);
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
-            
-            // $this->setArgsToProps();
+
+            $this->html_class = ['view'];
+            $this->addHtmlClass($this->getName());
         }
         
         /* 
@@ -102,34 +104,36 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             
             return $underscore ? $name : str_replace('_', '-', $name);
         }
-        
+
+        /* 
+         * Add view classes
+         * 
+         * @param str|array $class
+         */
+        public function addHtmlClass($class)
+        {
+            $_class = is_array($class) ? $class : explode(' ', trim($class));
+
+            if(!empty($_class))
+            {
+                $this->html_class = array_merge($this->html_class, $_class);
+            }
+        }
+            
         /* 
          * Get current view classes
          * 
-         * @param str|array $merge_classes
+         * @param str|array $add_class
          * @return str
          */
-        public function getHtmlClass($merge_classes=null)
+        public function getHtmlClass($add_class=null)
         {
-            $classes = [
-                'view'
-            ];
-            
-            $view_name = $this->getName();
-            
-            $classes[] = $view_name;
-            
-            if(isset($merge_classes))
+            if(isset($add_class))
             {
-                if(is_string($merge_classes))
-                {
-                    $merge_classes = explode(' ', $merge_classes);
-                }
-                
-                $classes = array_merge($classes, $merge_classes);
+                $this->addHtmlClass($add_class);
             }
-            
-            return implode(' ', $classes);
+
+            return implode(' ', $this->html_class);
         }
     }
 }
