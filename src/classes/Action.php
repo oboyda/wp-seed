@@ -24,6 +24,23 @@ class Action
         $this->req = new Req();
     }
 
+    protected function getRequestTypeProps($props_config)
+    {
+        $req_props = [];
+
+        foreach($props_config as $key => $prop_config)
+        {
+            $cast = isset($prop_config['cast']) ? $prop_config['cast'] : 'text';
+            $req_value = $this->getReq($key, $cast);
+            if(isset($req_value))
+            {
+                $req_props[$key] = $req_value;
+            }
+        }
+
+        return $req_props;
+    }
+
     protected function setStatus($status)
     {
         $this->status = (bool)$status;
