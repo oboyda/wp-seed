@@ -150,14 +150,14 @@ class Action
             $this->addErrorMessage(__('Something went wrong. Please, try again later.', 'wpseed'));
         }
 
-        $resp = wp_parse_args([
+        $resp = wp_parse_args($resp, [
             'status' => $this->status,
             'error_fields' => $this->error_fields,
             'messages' => $this->messages,
             'values' => $this->values,
             'redirect' => $this->redirect,
             'reload' => $this->reload
-        ], $resp);
+        ]);
 
         wp_send_json($resp);
     }
