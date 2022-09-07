@@ -16,6 +16,8 @@ class Action
     {
         $this->status = true;
         $this->error_fields = [];
+        $this->error_messages = [];
+        $this->success_messages = [];
         $this->messages = '';
         $this->values = [];
         $this->redirect = '';
@@ -104,12 +106,20 @@ class Action
 
     protected function addSuccessMessage($message)
     {
-        $this->messages .= $this->wrapResponseMessages($message, 'success');
+        if(!in_array($message, $this->success_messages))
+        {
+            $this->success_messages[] = $message;
+            $this->messages .= $this->wrapResponseMessages($message, 'success');
+        }
     }
 
     protected function addErrorMessage($message)
     {
-        $this->messages .= $this->wrapResponseMessages($message, 'error');
+        if(!in_array($message, $this->error_messages))
+        {
+            $this->error_messages[] = $message;
+            $this->messages .= $this->wrapResponseMessages($message, 'error');
+        }
     }
 
     protected function wrapResponseMessages($messages, $type='success')
@@ -153,6 +163,8 @@ class Action
         $resp = wp_parse_args($resp, [
             'status' => $this->status,
             'error_fields' => $this->error_fields,
+            'error_messages' => $this->error_messages,
+            'success_messages' => $this->success_messages,
             'messages' => $this->messages,
             'values' => $this->values,
             'redirect' => $this->redirect,
