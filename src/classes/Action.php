@@ -5,6 +5,8 @@ class Action
 {
     protected $status;
     protected $error_fields;
+    protected $error_messages;
+    protected $success_messages;
     protected $messages;
     protected $values;
     protected $redirect;
