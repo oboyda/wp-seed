@@ -83,7 +83,7 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
         protected function checkErrorFields($fields, $required_keys, $respond_on_errors=false)
         {
-            $empty_fields = Utils::checkArrayEmptyVals($fields, $required_keys);
+            $empty_fields = self::checkArrayEmptyVals($fields, $required_keys);
 
             if($empty_fields)
             {
@@ -99,6 +99,33 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             }
         }
 
+        static function checkArrayEmptyVals($arr, $include=[], $empty_compare=[])
+        {
+            $empty_keys = [];
+    
+            foreach((array)$arr as $k => $a)
+            {
+                if($include && !in_array($k, $include))
+                {
+                    continue;
+                }
+    
+                if($empty_compare)
+                {
+                    if(in_array($a, $empty_compare, true))
+                    {
+                        $empty_keys[] = $k;
+                    }
+                }
+                elseif(empty($a))
+                {
+                    $empty_keys[] = $k;
+                }
+            }
+    
+            return $empty_keys;
+        }
+    
         protected function checkCurrentUserCapability($capability)
         {
             if(!current_user_can($capability))
