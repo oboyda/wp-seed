@@ -9,6 +9,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         var $args;
         var $id;
         var $html_class;
+        var $html_style;
             
         /*
         * Construct the View object
@@ -23,6 +24,8 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
             $this->html_class = ['view'];
             $this->addHtmlClass($this->getName());
+
+            $this->html_style = [];
         }
         
         /* 
@@ -121,7 +124,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
             
         /* 
-         * Get current view classes
+         * Get view classes
          * 
          * @param str|array $add_class
          * @return str
@@ -134,6 +137,40 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             }
 
             return implode(' ', $this->html_class);
+        }
+
+        /* 
+         * Add view styles
+         * 
+         * @param str $style_rule
+         * @param str $style_value
+         */
+        protected function addHtmlStyle($style_rule, $style_value)
+        {
+            if(!isset($this->html_style[$style_rule]))
+            {
+                $this->html_style[$style_rule] = $style_value;
+            }
+        }
+    
+        /* 
+         * Get view styles
+         * 
+         * @return str
+         */
+        public function getHtmlStyle()
+        {
+            $_html_style = [];
+            
+            if(!empty($this->html_style))
+            {
+                foreach($this->html_style as $style_rule => $style_value)
+                {
+                    $_html_style[] = $style_rule . ': ' . $style_value;
+                }
+            }
+    
+            return !empty($_html_style) ? implode('; ', $_html_style) : '';
         }
     }
 }
