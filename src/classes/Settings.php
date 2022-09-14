@@ -12,7 +12,8 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
         var $settings_group;
         var $lang;
 
-        function __construct($settings, $sections){
+        public function __construct($settings, $sections=[], $render_fields=true)
+        {
             $this->settings = wp_parse_args($settings, array(
                 'prefix' => 'wpseed_',
                 'menu_page' => 'options-general.php', // https://codex.wordpress.org/Function_Reference/add_submenu_page#Parameters
@@ -22,7 +23,6 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             ));
 
             $this->sections = $sections;
-            if(!$this->sections) return;
 
             $this->page_slug = $this->settings['prefix'] . 'page';
             $this->settings_group = $this->settings['prefix'] . 'settings_group';
@@ -30,11 +30,14 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             $this->define_lang();
             add_action('plugins_loaded', array($this, 'define_lang'));
 
-            add_action('admin_menu', array($this, 'add_submenu_page'));
-            add_action('admin_init', array($this, 'add_fields'));
+            if($render_fields)
+            {
+                add_action('admin_menu', array($this, 'add_submenu_page'));
+                add_action('admin_init', array($this, 'add_fields'));
+            }
         }
 
-        function define_lang(){
+        public function define_lang(){
 
             $this->lang = '_en';
 
@@ -56,7 +59,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             return $this->settings['prefix'] . 'section_' . $id;
         }
 
-        function get_option($name, $lang=null){
+        public function get_option($name, $lang=null){
             $value = get_option($this->get_option_full_id($name, $lang));
             if($value == '' || $value === false){
                 foreach($this->sections as $section){
@@ -68,7 +71,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             return $value;
         }
 
-        function add_submenu_page(){
+        public function add_submenu_page(){
             add_submenu_page(
                 $this->settings['menu_page'],
                 $this->settings['page_title'],
@@ -79,7 +82,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             );
         }
 
-        function display_options_page(){ ?>
+        public function display_options_page(){ ?>
             <div class="wrap">
                 <div id="icon-options-general" class="icon32"></div>
                 <h1><?php echo $this->settings['page_title']; ?></h1>
@@ -101,7 +104,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             <?php
         }
 
-        function add_fields(){
+        public function add_fields(){
             foreach($this->sections as $section_id => $section){
                 add_settings_section(
                     $this->get_section_full_id($section_id),
@@ -126,18 +129,21 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             }
         }
 
-        function display_section($section){
+        public function display_section($section){
             if(isset($this->sections[$section['id']]['description']) && $this->sections[$section['id']]['description'] != ''){ ?>
                 <p><?php echo $this->section[$section['id']]['description']; ?></p>
             <?php
             }
         }
 
-        function display_field($args){
+        public function display_field($args){
             $option_name = $this->get_option_full_id($args['field_id']);
             switch($args['field_config']['type']){
-                case 'text': ?>
-                    <input name="<?php echo $option_name; ?>" type="text" class="regular-text" value="<?php echo $this->get_option($args['field_id']); ?>" />
+                case 'text': 
+                case 'number': 
+                case 'email': 
+                ?>
+                    <input name="<?php echo $option_name; ?>" type="<?php echo $args['field_config']['type']; ?>" class="regular-text" value="<?php echo $this->get_option($args['field_id']); ?>" />
                     <?php break;
                 case 'textarea': ?>
                     <textarea name="<?php echo $option_name; ?>" class="large-text" cols="50" rows="10"><?php echo $this->get_option($args['field_id']); ?></textarea>
