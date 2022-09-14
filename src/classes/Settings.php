@@ -6,35 +6,46 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
 {
     class Settings 
     {
-        var $settings;
-        var $sections;
-        var $page_slug;
-        var $settings_group;
-        var $lang;
+        protected $args;
+        protected $sections;
+        protected $page_slug;
+        protected $settings_group;
+        protected $lang;
 
-        public function __construct($settings, $sections=[], $render_fields=true)
+        public function __construct($args, $sections=[])
         {
-            $this->settings = wp_parse_args($settings, array(
+            $this->args = wp_parse_args($settings, array(
                 'prefix' => 'wpseed_',
                 'menu_page' => 'options-general.php', // https://codex.wordpress.org/Function_Reference/add_submenu_page#Parameters
                 'menu_title' => __('Theme Options', 'ac'),
                 'page_title' => __('Theme Options', 'ac'),
-                'btn_title' => __('Update', 'ac')
+                'btn_title' => __('Update', 'ac'),
+                'render_fields' => true
             ));
 
             $this->sections = $sections;
 
-            $this->page_slug = $this->settings['prefix'] . 'page';
-            $this->settings_group = $this->settings['prefix'] . 'settings_group';
+            $this->page_slug = $this->args['prefix'] . 'page';
+            $this->settings_group = $this->args['prefix'] . 'settings_group';
 
             $this->define_lang();
             add_action('plugins_loaded', array($this, 'define_lang'));
 
-            if($render_fields)
+            if($this->args['render_fields'])
             {
                 add_action('admin_menu', array($this, 'add_submenu_page'));
                 add_action('admin_init', array($this, 'add_fields'));
             }
+        }
+
+        public function set_args($args)
+        {
+            $this->args = $args;
+        }
+
+        public function set_sections($sections)
+        {
+            $this->sections = $sections;
         }
 
         public function define_lang(){
@@ -52,11 +63,11 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
 
         private function get_option_full_id($id, $lang=null){
             $lang = isset($lang) ? '_' . $lang : $this->lang; 
-            return $this->settings['prefix'] . $id . $lang;
+            return $this->args['prefix'] . $id . $lang;
         }
 
         private function get_section_full_id($id){
-            return $this->settings['prefix'] . 'section_' . $id;
+            return $this->args['prefix'] . 'section_' . $id;
         }
 
         public function get_option($name, $lang=null){
@@ -73,9 +84,9 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
 
         public function add_submenu_page(){
             add_submenu_page(
-                $this->settings['menu_page'],
-                $this->settings['page_title'],
-                $this->settings['menu_title'],
+                $this->args['menu_page'],
+                $this->args['page_title'],
+                $this->args['menu_title'],
                 'manage_options',
                 $this->page_slug,
                 array($this, 'display_options_page')
@@ -85,13 +96,13 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
         public function display_options_page(){ ?>
             <div class="wrap">
                 <div id="icon-options-general" class="icon32"></div>
-                <h1><?php echo $this->settings['page_title']; ?></h1>
-                <?php do_action($this->settings['prefix'] . 'before_form'); ?>
+                <h1><?php echo $this->args['page_title']; ?></h1>
+                <?php do_action($this->args['prefix'] . 'before_form'); ?>
                 <form action="options.php" method="POST">
                     <?php
                     do_settings_sections($this->page_slug);
                     settings_fields($this->settings_group);
-                    submit_button($this->settings['btn_title']);
+                    submit_button($this->args['btn_title']);
 
                     $lang = filter_input(INPUT_GET, 'lang');
                     if(!empty($lang)){
@@ -99,7 +110,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
                     }
                     ?>
                 </form>
-                <?php do_action($this->settings['prefix'] . 'after_form'); ?>
+                <?php do_action($this->args['prefix'] . 'after_form'); ?>
             </div>
             <?php
         }
