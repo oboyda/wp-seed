@@ -14,7 +14,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
 
         public function __construct($args, $sections=[])
         {
-            $this->args = wp_parse_args($settings, array(
+            $this->args = wp_parse_args($args, array(
                 'prefix' => 'wpseed_',
                 'menu_page' => 'options-general.php', // https://codex.wordpress.org/Function_Reference/add_submenu_page#Parameters
                 'menu_title' => __('Theme Options', 'ac'),
@@ -147,39 +147,39 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             }
         }
 
-        public function display_field($args){
-            $option_name = $this->get_option_full_id($args['field_id']);
-            switch($args['field_config']['type']){
+        public function display_field($field){
+            $option_name = $this->get_option_full_id($field['field_id']);
+            switch($field['field_config']['type']){
                 case 'text': 
                 case 'number': 
                 case 'email': 
                 ?>
-                    <input name="<?php echo $option_name; ?>" type="<?php echo $args['field_config']['type']; ?>" class="regular-text" value="<?php echo $this->get_option($args['field_id']); ?>" />
+                    <input name="<?php echo $option_name; ?>" type="<?php echo $field['field_config']['type']; ?>" class="regular-text" value="<?php echo $this->get_option($field['field_id']); ?>" />
                     <?php break;
                 case 'textarea': ?>
-                    <textarea name="<?php echo $option_name; ?>" class="large-text" cols="50" rows="10"><?php echo $this->get_option($args['field_id']); ?></textarea>
+                    <textarea name="<?php echo $option_name; ?>" class="large-text" cols="50" rows="10"><?php echo $this->get_option($field['field_id']); ?></textarea>
                     <?php break;
                 case 'select': ?>
                     <select name="<?php echo $option_name; ?>">
-                        <?php foreach((array) $args['field_config']['options'] as $value => $option){ ?>
-                        <option value="<?php echo $value; ?>" <?php selected($this->get_option($args['field_id']), $value); ?>><?php echo $option; ?></option>
+                        <?php foreach((array) $field['field_config']['options'] as $value => $option){ ?>
+                        <option value="<?php echo $value; ?>" <?php selected($this->get_option($field['field_id']), $value); ?>><?php echo $option; ?></option>
                         <?php } ?>
                     </select>
                     <?php break;
                 case 'checkbox': ?>
-                    <input name="<?php echo $option_name; ?>" type="checkbox" value="1" <?php checked($this->get_option($args['field_id']), 1); ?>/>
+                    <input name="<?php echo $option_name; ?>" type="checkbox" value="1" <?php checked($this->get_option($field['field_id']), 1); ?>/>
                     <?php break;
                 case 'checkbox_multiple': ?>
-                    <?php foreach((array) $args['field_config']['options'] as $value => $option){ ?>
+                    <?php foreach((array) $field['field_config']['options'] as $value => $option){ ?>
                     <p>
-                        <input id="<?php echo $option_name . '-' . $value; ?>" name="<?php echo $option_name; ?>" type="checkbox" value="<?php echo $value; ?>" <?php checked(in_array($value, (array)$this->get_option($args['field_id'])), true); ?> />
+                        <input id="<?php echo $option_name . '-' . $value; ?>" name="<?php echo $option_name; ?>" type="checkbox" value="<?php echo $value; ?>" <?php checked(in_array($value, (array)$this->get_option($field['field_id'])), true); ?> />
                         <label for="<?php echo $option_name . '-' . $value; ?>"><?php echo $option; ?></label>
                     </p>
                     <?php } ?>
                     <?php break;
             }
-            if(isset($args['field_config']['description']) && $args['field_config']['description'] != ''){ ?>
-                <p class="description"><?php echo $args['field_config']['description']; ?></p>
+            if(isset($field['field_config']['description']) && $field['field_config']['description'] != ''){ ?>
+                <p class="description"><?php echo $field['field_config']['description']; ?></p>
             <?php
             }
         }
