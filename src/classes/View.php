@@ -172,5 +172,41 @@ if(!class_exists(__NAMESPACE__ . '\View'))
     
             return !empty($_html_style) ? implode('; ', $_html_style) : '';
         }
+
+        /* 
+         * Distribute cols
+         * 
+         * @param array $items_html
+         * @param int $cols_num
+         * @param str $col_class
+         * 
+         * @return str
+         */
+        public function distributeCols($items_html, $cols_num=3, $col_class='lg')
+        {
+            if($cols_num === 5 || $cols_num > 6)
+            {
+                $cols_num = 6;
+            }
+    
+            $items_html_rows = array_chunk($items_html, $cols_num);
+            $col_class = 'col-' . $col_class . '-' . 12/$cols_num;
+    
+            $html = '';
+    
+            foreach($items_html_rows as $items_html_row)
+            {
+                $html .= '<div class="row">';
+                foreach($items_html_row as $item_html)
+                {
+                    $html .= '<div class="' . $col_class . '">';
+                        $html .= $item_html;
+                    $html .= '</div>';
+                }
+                $html .= '</div>';
+            }
+    
+            return $html;
+        }
     }
 }
