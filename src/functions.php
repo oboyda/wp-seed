@@ -22,13 +22,15 @@ if(!function_exists('wpseed_get_view'))
         $view_path = $views_dir . '/' . $view_name . '.php';
         $view_class = str_replace(' ', '_', ucwords(str_replace('-', ' ', $view_name)));
         $view_class_name = $views_namespace . '\\' . $view_class;
+
+        $view = null;
         
         if(class_exists($view_class_name))
         {
             $view = new $view_class_name($args);
         }
-        else{
-            
+        else
+        {
             $view = new \WPSEED\View($args);
         }
     
@@ -39,7 +41,10 @@ if(!function_exists('wpseed_get_view'))
                 ob_start();
             }
     
-            include $view_path;
+            if(isset($view) && (isset($view->args['view_capability']) && ($view->args['view_capability'] === 'public' || current_user_can($view->args['view_capability']))))
+            {
+                include $view_path;
+            }
     
             if(!$echo)
             {

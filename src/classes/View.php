@@ -19,7 +19,9 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         */
         public function __construct($args=[], $default_args=[])
         {
-            $this->args = empty($default_args) ? $args : wp_parse_args($args, $default_args);
+            $this->args = wp_parse_args($args, wp_parse_args($default_args, [
+                'view_capability' => 'public'
+            ]));
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
 
             $this->html_class = ['view'];
@@ -29,7 +31,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
         
         /* 
-         * Set $this->args to object properties
+         * Set $this->args to object properties. Depricated.
          * 
          */
         protected function setArgsToProps($force_set=false)
@@ -64,6 +66,11 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             
             return null;
         }
+
+        // public function checkCapability()
+        // {
+        //     return (empty($view->args['view_capability']) || current_user_can($view->args['view_capability']));
+        // }
 
         /* 
          * Return WP ajax URL
