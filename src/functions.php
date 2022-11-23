@@ -143,7 +143,7 @@ if(!function_exists('wpseed_get_file_class_name'))
      * @param $file string
      * @return string
      */
-    function wpseed_get_file_class_name($file)
+    function wpseed_get_file_class_name($file, $namespace='')
     {
         $file_name = basename($file);
         $file_name = substr($file_name, 0, strlen($file_name)-strlen('.php'));
@@ -151,8 +151,40 @@ if(!function_exists('wpseed_get_file_class_name'))
         $file_name = str_replace('_', ' ', $file_name);
         $file_name = ucwords($file_name);
         $file_name = str_replace(' ', '_', $file_name);
+
+        if($namespace)
+        {
+            $file_name = $namespace . '\\' . $file_name;
+        }
         
         return $file_name;
+    }
+}
+
+if(!function_exists('wpseed_get_dir_classes'))
+{
+    /*
+     * List dir classes
+     * 
+     * @param $dir string
+     * @param $namespace string
+     * @return array
+     */
+    function wpseed_get_dir_classes($dir, $namespace='')
+    {
+        $dir_classes = [];
+
+        $files = wpseed_get_dir_files($dir);
+        
+        if($files)
+        {
+            foreach($files as $file)
+            {
+                $dir_classes[] = wpseed_get_file_class_name($file, $namespace);
+            }
+        }
+
+        return $dir_classes;
     }
 }
 
@@ -179,7 +211,7 @@ if(!function_exists('wpseed_load_dir_classes'))
                     require_once $file;
                 }
                 
-                $class_name =  $namespace . '\\' . wpseed_get_file_class_name($file);
+                $class_name =  wpseed_get_file_class_name($file, $namespace);
                 
                 if(class_exists($class_name))
                 {
