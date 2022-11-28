@@ -116,6 +116,12 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
         }
 
         public function add_fields(){
+
+            if(is_string($this->sections) && file_exists($this->sections))
+            {
+                $this->sections = require_once($this->sections);
+            }
+
             foreach($this->sections as $section_id => $section){
                 add_settings_section(
                     $this->get_section_full_id($section_id),
