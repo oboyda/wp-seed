@@ -17,11 +17,24 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         * @param array $args Arguments to be used in the template. Will be merged with the default arguments.
         * @param array $args Default arguments to be used in the template.
         */
-        public function __construct($args=[], $default_args=[])
+        public function __construct($args=[], $default_args=[], $args_parse_deep=true)
         {
-            $this->args = wp_parse_args($args, wp_parse_args($default_args, [
+            $default_args = wp_parse_args($default_args, [
                 'view_capability' => 'public'
-            ]));
+            ]);
+
+            if($args_parse_deep)
+            {
+                foreach($default_args as $key => $default_arg)
+                {
+                    if(is_array($default_arg) && isset($args[$key]) && is_array($args[$key]))
+                    {
+                        $args[$key] = wp_parse_args($args[$key], $default_arg);
+                    }
+                }
+            }
+            $this->args = wp_parse_args($args, $default_args);
+
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
 
             $this->html_class = ['view'];
@@ -90,7 +103,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         private function genId()
         {
             $chars = str_shuffle('abcdefghijklmnopqrstuvwxyz1234567890');
-            return 'view-' . substr(str_shuffle($chars), 0, 10);
+            return 'view-' . substr($chars, 0, 10);
         }
     
         /* 
