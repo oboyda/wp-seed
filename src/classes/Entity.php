@@ -215,12 +215,12 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $prop_config = $this->get_props_config($key);
 
-            if(!(isset($prop_config) && $prop_config['type'] === 'meta'))
+            if(!(isset($prop_config['type']) && $prop_config['type'] === 'meta'))
             {
                 return;
             }
 
-            if(!(!isset($prop_config['options']) || isset($prop_config['options'][$value])))
+            if(isset($prop_config['options']) && !isset($prop_config['options'][$value]))
             {
                 return;
             }
@@ -286,7 +286,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $prop_config = $this->get_props_config($key);
             
-            if(!(isset($prop_config) && $prop_config['type'] === 'attachment'))
+            if(!(isset($prop_config['type']) && $prop_config['type'] === 'attachment'))
             {
                 return;
             }
@@ -323,7 +323,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         public function set_prop($key, $value)
         {
             $prop_config = $this->get_props_config($key);
-            $type = (isset($prop_config) && isset($prop_config['type'])) ? $prop_config['type'] : 'data';
+            $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
 
             switch($type)
             {
@@ -571,7 +571,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             if(isset($key))
             {
-                return isset($this->props_config[$key]) ? $this->props_config[$key] : null;
+                return isset($this->props_config[$key]) ? $this->props_config[$key] : [];
             }
             return $this->props_config;
         }
@@ -587,21 +587,22 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         public function get_prop($key, $default=null, $single=false)
         {
             $prop_config = $this->get_props_config($key);
-            $type = (isset($prop_config) && isset($prop_config['type'])) ? $prop_config['type'] : 'data';
+            $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
+            $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
 
             switch($type)
             {
                 case 'data':
-                    return $this->get_data($key, $default);
+                    return $this->get_data($sys_key, $default);
                 break;
                 case 'meta':
-                    return $this->get_meta($key, $default, $single);
+                    return $this->get_meta($sys_key, $default, $single);
                 break;
                 case 'taxonomy':
-                    return $this->get_terms($key, $default);
+                    return $this->get_terms($sys_key, $default);
                 break;
                 case 'attachment':
-                    return $this->get_attachments($key, $default);
+                    return $this->get_attachments($sys_key, $default);
                 break;
             }
 
