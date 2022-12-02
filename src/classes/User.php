@@ -343,7 +343,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             }
             elseif(array_key_exists($key, $this->meta))
             {
-                return $this->get_meta($key, $single, $default);
+                return $this->get_meta($key, $default, $single);
             }
             
             return null;
@@ -400,7 +400,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 }
                 
                 $data = $this->get_data();
-                $meta = $this->get_meta(null, true);
+                $meta = $this->get_meta(null, null, true);
 
                 $password = $data['user_pass'];
                 unset($data['user_pass']);

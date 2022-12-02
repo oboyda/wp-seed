@@ -44,7 +44,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
             if(!empty($this->meta))
             {
-                $data['meta_input'] = $this->get_meta(null, true);
+                $data['meta_input'] = $this->get_meta(null, null, true);
             }
             if(!isset($data['post_status']))
             {

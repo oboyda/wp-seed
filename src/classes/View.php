@@ -12,10 +12,12 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         var $html_style;
             
         /*
-        * Construct the View object
-        *
-        * @param array $args Arguments to be used in the template. Will be merged with the default arguments.
-        * @param array $args Default arguments to be used in the template.
+        --------------------------------------------------
+        Construct the View object
+
+        @param array $args Arguments to be used in the template. Will be merged with the default arguments.
+        @param array $args Default arguments to be used in the template.
+        --------------------------------------------------
         */
         public function __construct($args=[], $default_args=[], $args_parse_deep=true)
         {
@@ -44,9 +46,10 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
         
         /* 
-         * Set $this->args to object properties. Depricated.
-         * 
-         */
+        --------------------------------------------------
+        Set $this->args to object properties. Depricated.
+        --------------------------------------------------
+        */
         protected function setArgsToProps($force_set=false)
         {
             foreach($this->args as $name => $arg)
@@ -56,10 +59,12 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
         
         /* 
-         * Magic method for getting (get_[property_name]) and checking (has_[property_name]) object properties
-         * 
-         * @return mixed
-         */
+        --------------------------------------------------
+        Magic method for getting (get_[property_name]) and checking (has_[property_name]) object properties
+        
+        @return mixed
+        --------------------------------------------------
+        */
         public function __call($name, $args)
         {
             if(strpos($name, 'get_') === 0)
@@ -80,26 +85,25 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             return null;
         }
 
-        // public function checkCapability()
-        // {
-        //     return (empty($view->args['view_capability']) || current_user_can($view->args['view_capability']));
-        // }
-
         /* 
-         * Return WP ajax URL
-         * 
-         * @return str
-         */
+        --------------------------------------------------
+        Return WP ajax URL
+        
+        @return str
+        --------------------------------------------------
+        */
         public function getAjaxUrl()
         {
             return admin_url('admin-ajax.php');
         }
     
         /* 
-         * Generates random ID
-         * 
-         * @return str
-         */
+        --------------------------------------------------
+        Generates random ID
+        
+        @return str
+        --------------------------------------------------
+        */
         private function genId()
         {
             $chars = str_shuffle('abcdefghijklmnopqrstuvwxyz1234567890');
@@ -107,20 +111,24 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
     
         /* 
-         * Get random ID
-         * 
-         * @return str
-         */
+        --------------------------------------------------
+        Get random ID
+        
+        @return str
+        --------------------------------------------------
+        */
         public function getId()
         {
             return $this->id;
         }
         
         /* 
-         * Get view name
-         * 
-         * @return str
-         */
+        --------------------------------------------------
+        Get view name
+        
+        @return str
+        --------------------------------------------------
+        */
         public function getName($underscore=false)
         {
             $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
@@ -129,10 +137,12 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
 
         /* 
-         * Add view classes
-         * 
-         * @param str|array $class
-         */
+        --------------------------------------------------
+        Add view classes
+        
+        @param str|array $class
+        --------------------------------------------------
+        */
         public function addHtmlClass($class)
         {
             $_class = is_array($class) ? $class : explode(' ', trim($class));
@@ -144,11 +154,13 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
             
         /* 
-         * Get view classes
-         * 
-         * @param str|array $add_class
-         * @return str
-         */
+        --------------------------------------------------
+        Get view classes
+        
+        @param str|array $add_class
+        @return str
+        --------------------------------------------------
+        */
         public function getHtmlClass($add_class=null)
         {
             if(isset($add_class))
@@ -160,11 +172,13 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
 
         /* 
-         * Add view styles
-         * 
-         * @param str $style_rule
-         * @param str $style_value
-         */
+        --------------------------------------------------
+        Add view styles
+        
+        @param str $style_rule
+        @param str $style_value
+        --------------------------------------------------
+        */
         protected function addHtmlStyle($style_rule, $style_value)
         {
             if(!isset($this->html_style[$style_rule]))
@@ -174,10 +188,12 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
     
         /* 
-         * Get view styles
-         * 
-         * @return str
-         */
+        --------------------------------------------------
+        Get view styles
+        
+        @return str
+        --------------------------------------------------
+        */
         public function getHtmlStyle()
         {
             $_html_style = [];
@@ -194,14 +210,16 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         }
 
         /* 
-         * Distribute cols
-         * 
-         * @param array $items_html
-         * @param int $cols_num
-         * @param str $col_class
-         * 
-         * @return str
-         */
+        --------------------------------------------------
+        Distribute cols
+        
+        @param array $items_html
+        @param int $cols_num
+        @param str $col_class
+        
+        @return str
+        --------------------------------------------------
+        */
         public function distributeCols($items_html, $cols_num=3, $col_class='lg')
         {
             if($cols_num === 5 || $cols_num > 6)

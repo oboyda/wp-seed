@@ -148,7 +148,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 $data = $this->data;
 
                 $data['post_parent'] = $this->parent_id;
-                $data['meta_input'] = $this->get_meta(null, true);
+                $data['meta_input'] = $this->get_meta(null, null, true);
 
                 $id = wp_update_post($data);
             }
@@ -180,7 +180,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                     $this->set_data('post_status', 'inherit');
 
                     $data = $this->get_data();
-                    $data['meta_input'] = $this->get_meta(null, true);
+                    $data['meta_input'] = $this->get_meta(null, null, true);
                     
                     $id = wp_insert_attachment($data, $save_path, $this->parent_id);
                 }

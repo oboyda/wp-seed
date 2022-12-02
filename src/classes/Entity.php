@@ -346,6 +346,58 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
         /*
         --------------------------------------------------
+        Check if property is not empty
+
+        @param string $key
+
+        @return bool
+        --------------------------------------------------
+        */
+        public function has_prop($key)
+        {
+            $prop = $this->get_prop($key);
+            return !empty($prop);
+        }
+
+        /*
+        --------------------------------------------------
+        General method to get/check/set properties
+
+        @param string $name Property name
+        @param mixed $default Default value to return
+        @param bool Whether to return a single value for the meta type
+
+        @return mixed
+        --------------------------------------------------
+        */
+        public function __call($name, $args)
+        {
+            if(strpos($name, 'get_') === 0)
+            {
+                $default = isset($args[0]) ? $args[0] : null;
+                $single = isset($args[1]) ? $args[1] : true;
+    
+                $prop_name = substr($name, strlen('get_'));
+                return $this->get_prop($prop_name, $default, $single);
+            }
+            elseif(strpos($name, 'has_') === 0){
+                
+                $prop_name = substr($name, strlen('has_'));
+                return $this->has_prop($prop_name);
+            }
+            elseif(strpos($name, 'set_') === 0){
+
+                $value = isset($args[0]) ? $args[0] : null;
+    
+                $prop_name = substr($name, strlen('g_'));
+                return $this->set_prop($prop_name, $value);
+            }
+            
+            return null;
+        }
+
+        /*
+        --------------------------------------------------
         Get WP_Post ID from $this->id
 
         @return int
@@ -381,11 +433,17 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function get_data($key=null, $default=null)
         {
-            if(!in_array('data', $this->prop_types)) return null;
+            if(!in_array('data', $this->prop_types))
+            {
+                return null;
+            }
             
-            if(!isset($key)) return $this->data;
+            if(!isset($key))
+            {
+                return $this->data;
+            }
 
-            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
+            return !empty($this->data[$key]) ? $this->data[$key] : (isset($default) ? $default : $this->data[$key]);
         }
 
         /*
@@ -399,9 +457,12 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return mixed If $key=null all meta values will be returned
         --------------------------------------------------
         */
-        public function get_meta($key=null, $single=true, $default=null)
+        public function get_meta($key=null, $default=null, $single=true)
         {
-            if(!in_array('meta', $this->prop_types)) return null;
+            if(!in_array('meta', $this->prop_types))
+            {
+                return null;
+            }
             
             if(!isset($key))
             {
@@ -508,21 +569,23 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             $prop_config = $this->get_props_config($key);
 
-            if(array_key_exists($key, $this->data))
+            if(isset($prop_config) && isset($prop_config['type']))
             {
-                return $this->get_data($key, $default);
-            }
-            elseif(array_key_exists($key, $this->meta))
-            {
-                return $this->get_meta($key, $single, $default);
-            }
-            elseif(array_key_exists($key, $this->terms))
-            {
-                return $this->get_terms($key, $default);
-            }
-            elseif(isset($prop_config) && $prop_config['type'] === 'attachment')
-            {
-                return $this->get_attachments($key, $default);
+                switch($prop_config['type'])
+                {
+                    case 'data':
+                        return $this->get_data($key, $default);
+                    break;
+                    case 'meta':
+                        return $this->get_meta($key, $default, $single);
+                    break;
+                    case 'taxonomy':
+                        return $this->get_terms($key, $default);
+                    break;
+                    case 'attachment':
+                        return $this->get_attachments($key, $default);
+                    break;
+                }
             }
 
             return null;
