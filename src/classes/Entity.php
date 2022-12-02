@@ -208,13 +208,22 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function set_meta($key, $value, $single=true)
         {
-            if(!in_array('meta', $this->prop_types)) return;
+            if(!in_array('meta', $this->prop_types))
+            {
+                return;
+            }
 
             $prop_config = $this->get_props_config($key);
 
-            if(!(isset($prop_config) && $prop_config['type'] === 'meta')) return;
+            if(!(isset($prop_config) && $prop_config['type'] === 'meta'))
+            {
+                return;
+            }
 
-            if(!(!isset($prop_config['options']) || isset($prop_config['options'][$value]))) return;
+            if(!(!isset($prop_config['options']) || isset($prop_config['options'][$value])))
+            {
+                return;
+            }
 
             if(!isset($this->meta[$key]))
             {
@@ -270,11 +279,17 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function set_attachments($key, $attachments)
         {
-            if(!in_array('attachment', $this->prop_types)) return;
+            if(!in_array('attachment', $this->prop_types))
+            {
+                return;
+            }
 
             $prop_config = $this->get_props_config($key);
             
-            if(!(isset($prop_config) && $prop_config['type'] === 'attachment')) return;
+            if(!(isset($prop_config) && $prop_config['type'] === 'attachment'))
+            {
+                return;
+            }
 
             $_attachments = [];
 
@@ -308,7 +323,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         public function set_prop($key, $value)
         {
             $prop_config = $this->get_props_config($key);
-            $type = isset($prop_config) ? $prop_config['type'] : 'data';
+            $type = (isset($prop_config) && isset($prop_config['type'])) ? $prop_config['type'] : 'data';
 
             switch($type)
             {
@@ -443,7 +458,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 return $this->data;
             }
 
-            return !empty($this->data[$key]) ? $this->data[$key] : (isset($default) ? $default : $this->data[$key]);
+            $data = !empty($this->data[$key]) ? $this->data[$key] : (isset($default) ? $default : $this->data[$key]);
+
+            return $data;
         }
 
         /*
@@ -482,7 +499,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $meta = (empty($meta) && isset($default)) ? $default : $meta;
 
-            return ($single && isset($meta[0])) ? $meta[0] : $meta;
+            $meta = ($single && isset($meta[0])) ? $meta[0] : $meta;
+
+            return $this->cast_prop($meta, $key);
         }
 
         /*
@@ -568,24 +587,22 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         public function get_prop($key, $default=null, $single=false)
         {
             $prop_config = $this->get_props_config($key);
+            $type = (isset($prop_config) && isset($prop_config['type'])) ? $prop_config['type'] : 'data';
 
-            if(isset($prop_config) && isset($prop_config['type']))
+            switch($type)
             {
-                switch($prop_config['type'])
-                {
-                    case 'data':
-                        return $this->get_data($key, $default);
-                    break;
-                    case 'meta':
-                        return $this->get_meta($key, $default, $single);
-                    break;
-                    case 'taxonomy':
-                        return $this->get_terms($key, $default);
-                    break;
-                    case 'attachment':
-                        return $this->get_attachments($key, $default);
-                    break;
-                }
+                case 'data':
+                    return $this->get_data($key, $default);
+                break;
+                case 'meta':
+                    return $this->get_meta($key, $default, $single);
+                break;
+                case 'taxonomy':
+                    return $this->get_terms($key, $default);
+                break;
+                case 'attachment':
+                    return $this->get_attachments($key, $default);
+                break;
             }
 
             return null;
@@ -638,6 +655,50 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             }
 
             return $errors;
+        }
+
+        protected function cast_prop_walker(&$prop_item, $i, $cast)
+        {
+            $prop = $this->cast_prop($prop, null, $cast);
+        }
+
+        protected function cast_prop($prop, $prop_name=null, $cast=null)
+        {
+            if(!isset($cast))
+            {
+                $prop_config = isset($prop_name) ? $this->get_props_config($prop_name) : null;
+                $cast = (isset($prop_config) && isset($prop_config['cast'])) ? $prop_config['cast'] : null;
+            }
+
+            if(isset($cast))
+            {
+                if(is_array($prop))
+                {
+                    array_walk($prop, [$this, 'cast_prop_walker'], $cast);
+                }
+    
+                switch($cast)
+                {
+                    case 'int':
+                    case 'integer':
+                        $prop = intval($prop);
+                    break;
+                    case 'float':
+                    case 'floatval':
+                        $prop = floatval($prop);
+                    break;
+                    case 'bool':
+                    case 'boolean';
+                        $prop = boolval($prop);
+                    break;
+                    case 'str':
+                    case 'string';
+                        $prop = strval($prop);
+                    break;
+                }
+            }
+
+            return $prop;
         }
     }
 }
