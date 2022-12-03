@@ -486,21 +486,23 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             {
                 if($single)
                 {
-                    $meta = [];
+                    $meta_s = [];
                     foreach($this->meta as $_key => $_meta)
                     {
-                        if(isset($_meta[0])) $meta[$_key] = $_meta[0];
+                        if(isset($_meta[0])) $meta_s[$_key] = $_meta[0];
                     }
-                    return $meta;
+
+                    return (empty($meta_s) && isset($default)) ? $default :$meta_s;
                 }
-                return $this->meta;
+
+                return (empty($this->meta) && isset($default)) ? $default : $this->meta;
             }
 
-            $meta = isset($this->meta[$key]) ? $this->meta[$key] : false;
+            $meta = isset($this->meta[$key]) ? $this->meta[$key] : null;
+
+            $meta = isset($meta) ? (($single && isset($meta[0])) ? trim($meta[0]) : $meta) : null;
 
             $meta = (empty($meta) && isset($default)) ? $default : $meta;
-
-            $meta = ($single && isset($meta[0])) ? $meta[0] : trim($meta);
 
             return $this->cast_prop($meta, $key);
         }
@@ -585,7 +587,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         --------------------------------------------------
         */
 
-        public function get_prop($key, $default=null, $single=false)
+        public function get_prop($key, $default=null, $single=true)
         {
             $prop_config = $this->get_props_config($key);
             $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
