@@ -143,6 +143,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             foreach((array)$props_config as $key => $prop_config)
             {
                 $this->props_config[$key] = wp_parse_args($prop_config, [
+                    'sys_key' => $key,
                     'type' => 'data',
                     'label' => $key,
                     'required' => false
@@ -499,7 +500,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $meta = (empty($meta) && isset($default)) ? $default : $meta;
 
-            $meta = ($single && isset($meta[0])) ? $meta[0] : $meta;
+            $meta = ($single && isset($meta[0])) ? $meta[0] : trim($meta);
 
             return $this->cast_prop($meta, $key);
         }
