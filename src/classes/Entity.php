@@ -517,15 +517,26 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return array
         --------------------------------------------------
         */
-        public function get_terms($taxonomy=null, $default=null)
+        public function get_terms($taxonomy, $default=null, $single=true)
         {
-            if(!in_array('term', $this->prop_types)) return null;
+            if(!in_array('term', $this->prop_types))
+            {
+                return null;
+            }
 
-            if(!isset($taxonomy)) return $this->terms;
+            if(!isset($taxonomy))
+            {
+                return $this->terms;
+            }
             
-            $terms = isset($this->terms[$taxonomy]) ? $this->terms[$taxonomy] : false;
+            $terms = isset($this->terms[$taxonomy]) ? $this->terms[$taxonomy] : [];
 
-            return (isset($default) && empty($terms)) ? $default : $terms;
+            if($single)
+            {
+                $terms = isset($terms[0]) ? $terms[0] : $terms;
+            }
+
+            return (empty($terms) && isset($default)) ? $default : $terms;
         }
 
         /*
@@ -602,7 +613,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                     return $this->get_meta($sys_key, $default, $single);
                 break;
                 case 'taxonomy':
-                    return $this->get_terms($sys_key, $default);
+                    return $this->get_terms($sys_key, $default, $single);
                 break;
                 case 'attachment':
                     return $this->get_attachments($sys_key, $default);
