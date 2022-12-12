@@ -199,20 +199,21 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             $prop_config = $this->get_props_config($key);
             $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
+            $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
 
             switch($type)
             {
                 case 'data':
-                    $this->set_data($key, $value);
+                    $this->set_data($sys_key, $value);
                     break;
                 case 'meta':
-                    $this->set_meta($key, $value);
+                    $this->set_meta($sys_key, $value);
                     break;
                 case 'term':
-                    $this->set_terms($key, $value);
+                    $this->set_terms($sys_key, $value);
                     break;
                 case 'attachment':
-                    $this->set_attachments($key, $value);
+                    $this->set_attachments($sys_key, $value);
                     break;
             }
         }
