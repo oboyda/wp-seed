@@ -4,7 +4,7 @@ namespace WPSEED;
 
 if(!class_exists(__NAMESPACE__ . '\Attachment'))
 {
-    class Attachment extends Entity
+    class Attachment extends Post
     {
         private $parent_id;
         private $file_data;
@@ -32,6 +32,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         public function __construct($post=null, $props_config=[], $parent_id=0, $file_data=[])
         {
             $this->_set_prop_types(['data', 'meta']);
+            
             $this->parent_id = $parent_id;
             
             parent::__construct($post, $props_config);

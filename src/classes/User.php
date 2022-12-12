@@ -4,16 +4,8 @@ namespace WPSEED;
 
 if(!class_exists(__NAMESPACE__ . '\User'))
 {
-    class User 
+    class User extends Entity
     {
-        protected $id;
-
-        protected $prop_types;
-        protected $props_config;
-
-        protected $data;
-        protected $meta;
-
         protected $role;
         
         /*
@@ -36,14 +28,12 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function __construct($user=null, $props_config=[])
         {
-            if(!isset($this->prop_types))
-            {
-                $this->prop_types = ['data', 'meta'];
-            }
+            $this->_set_prop_types(['data', 'meta']);
+
+            parent::__construct($props_config);
 
             $this->_set_data($user);
             $this->_set_meta();
-            $this->_set_props_config($props_config);
         }
         
         /*
@@ -52,11 +42,6 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         --------------------------------------------------
         */
         
-        protected function _set_prop_types($prop_types)
-        {
-            $this->prop_types = $prop_types;
-        }
-
         protected function _set_data($user=null)
         {
             if(!in_array('data', $this->prop_types)) return;
@@ -91,18 +76,6 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                         $this->meta[$key][$i] = maybe_unserialize($m);
                     }
                 }
-            }
-        }
-
-        protected function _set_props_config($props_config)
-        {
-            foreach((array)$props_config as $key => $prop_config)
-            {
-                $this->props_config[$key] = wp_parse_args($prop_config, [
-                    'type' => 'data',
-                    'label' => $key,
-                    'required' => false
-                ]);
             }
         }
 
@@ -155,114 +128,6 @@ if(!class_exists(__NAMESPACE__ . '\User'))
 
         /*
         --------------------------------------------------
-        Set meta type properties
-
-        @param string $key Must be specified in $this->props_config;
-        @param mixed $value
-
-        @return void
-        --------------------------------------------------
-        */
-        public function set_meta($key, $value, $single=true)
-        {
-            if(!in_array('meta', $this->prop_types)) return;
-
-            $prop_config = $this->get_props_config($key);
-
-            if(!(isset($prop_config) && $prop_config['type'] === 'meta')) return;
-
-            if(!(isset($prop_config['options']) && in_array($value, $prop_config['options']))) return;
-            
-            if(!isset($this->meta[$key]))
-            {
-                $this->meta[$key] = [];
-            }
-
-            if($single)
-            {
-                $this->meta[$key] = [$value];
-            }
-            else{
-                $this->meta[$key][] = $value;
-            }
-        }
-
-        /*
-        --------------------------------------------------
-        Common method to set data, meta, term and attachment type properties
-
-        @param string $key
-        @param mixed $value
-
-        @return void
-        --------------------------------------------------
-        */
-        public function set_prop($key, $value)
-        {
-            $prop_config = $this->get_props_config($key);
-            $type = isset($prop_config) ? $prop_config['type'] : 'data';
-
-            switch($type)
-            {
-                case 'data':
-                    $this->set_data($key, $value);
-                    break;
-                case 'meta':
-                    $this->set_meta($key, $value);
-                    break;
-            }
-        }
-
-        /*
-        --------------------------------------------------
-        Common method to set in bulk data, meta, term and attachment type properties
-
-        @param array $props Array of key-value pairs
-
-        @return void
-        --------------------------------------------------
-        */
-        public function set_props($props)
-        {
-            foreach((array)$props as $key => $prop)
-            {
-                $this->set_prop($key, $prop);
-            }
-        }
-
-        /*
-        --------------------------------------------------
-        Get WP_User ID from $this->id
-
-        @return int
-        --------------------------------------------------
-        */
-        public function get_id()
-        {
-            return $this->id;
-        }
-
-        /*
-        --------------------------------------------------
-        Get data type properties
-
-        @param string|null $key as in WP_User object
-        @param mixed $default Default value to return
-
-        @return mixed If $key=null all data values will be returned
-        --------------------------------------------------
-        */
-        public function get_data($key=null, $default=null)
-        {
-            if(!in_array('data', $this->prop_types)) return null;
-            
-            if(!isset($key)) return $this->data;
-
-            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
-        }
-
-        /*
-        --------------------------------------------------
         Get user role
 
         @return string
@@ -271,108 +136,6 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         public function get_role()
         {
             return $this->role;
-        }
-
-        /*
-        --------------------------------------------------
-        Get meta type properties
-
-        @param string|null $key
-        @param bool $single Whether to return a single meta value
-        @param mixed $default Default value to return
-
-        @return mixed If $key=null all meta values will be returned
-        --------------------------------------------------
-        */
-        public function get_meta($key=null, $single=true, $default=null)
-        {
-            if(!in_array('meta', $this->prop_types)) return null;
-            
-            if(!isset($key))
-            {
-                if($single)
-                {
-                    $meta = [];
-                    foreach($this->meta as $_key => $_meta)
-                    {
-                        if(isset($_meta[0])) $meta[$_key] = $_meta[0];
-                    }
-                    return $meta;
-                }
-                return $this->meta;
-            }
-
-            $meta = isset($this->meta[$key]) ? $this->meta[$key] : false;
-
-            $meta = (empty($meta) && isset($default)) ? $default : $meta;
-
-            return ($single && isset($meta[0])) ? $meta[0] : $meta;
-        }
-
-        /*
-        --------------------------------------------------
-        Get $props_config
-
-        @prop string|null $key
-
-        @return array|bool
-        --------------------------------------------------
-        */
-        public function get_props_config($key=null)
-        {
-            if(isset($key))
-            {
-                return isset($this->props_config[$key]) ? $this->props_config[$key] : null;
-            }
-            return $this->props_config;
-        }
-
-        /*
-        --------------------------------------------------
-        Get prop from $this->data or $this->meta
-
-        @return mixed
-        --------------------------------------------------
-        */
-
-        public function get_prop($key, $default=null, $single=false)
-        {
-            if(array_key_exists($key, $this->data))
-            {
-                return $this->get_data($key, $default);
-            }
-            elseif(array_key_exists($key, $this->meta))
-            {
-                return $this->get_meta($key, $default, $single);
-            }
-            
-            return null;
-        }
-
-        /*
-        --------------------------------------------------
-        Validate object properties
-
-        @return array
-        --------------------------------------------------
-        */
-        public function validate()
-        {
-            $errors = [
-                'field_errors' => []
-            ];
-
-            foreach((array)$this->props_config as $key => $prop_config)
-            {
-                $value = $this->get_prop($key);
-
-                if($prop_config['required'] && empty($value))
-                {
-                    $errors['field_errors'][] = $key;
-                }
-            }
-
-            return $errors;
         }
 
         /*

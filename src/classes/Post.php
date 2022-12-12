@@ -26,7 +26,143 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         */
         public function __construct($post=null, $props_config=[])
         {
-            parent::__construct($post, $props_config);
+            $this->_set_prop_types(['data', 'meta', 'term', 'attachment']);
+
+            parent::__construct($props_config);
+
+            $this->_set_data($post);
+            $this->_set_meta();
+            $this->_set_terms();
+            $this->_set_attachments();
+        }
+
+        /*
+        --------------------------------------------------
+        Init & setter methods
+        --------------------------------------------------
+        */
+        
+        protected function _set_data($post=null)
+        {
+            if(!in_array('data', $this->prop_types)) return;
+
+            $this->id = 0;
+            $this->data = [];
+            $this->permalink = '';
+
+            $_post = is_int($post) ? get_post($post) : $post;
+
+            if(is_a($_post, 'WP_Post'))
+            {
+                $this->id = $_post->ID;
+                if(!isset($this->post_type))
+                {
+                    $this->post_type = $_post->post_type;
+                }
+                $this->data = (array)$_post;
+                $this->permalink = get_permalink($this->id);
+            }
+        }
+
+        protected function _set_meta()
+        {
+            if(!in_array('meta', $this->prop_types)) return;
+            
+            $this->meta = [];
+
+            if($this->id)
+            {
+                $meta = get_post_meta($this->id);
+                foreach((array)$meta as $key => $meta_item)
+                {
+                    foreach((array)$meta_item as $i => $m)
+                    {
+                        $this->meta[$key][$i] = maybe_unserialize($m);
+                    }
+                }
+            }
+        }
+
+        protected function _set_terms()
+        {
+            if(!in_array('term', $this->prop_types)) return;
+            
+            $this->terms = [];
+
+            if($this->id)
+            {
+                $taxonomies = get_object_taxonomies($this->get_type());
+                foreach((array)$taxonomies as $taxonomy)
+                {
+                    $terms = wp_get_object_terms($this->id, $taxonomy, ['fields' => 'ids']);
+                    $this->terms[$taxonomy] = is_wp_error($terms) ? [] : $terms;
+                }
+            }
+        }
+
+        protected function _set_attachments()
+        {
+            if(!in_array('attachment', $this->prop_types)) return;
+            
+            $this->attachments = [];
+            
+            if(!$this->id) return;
+
+            $this->attachments = get_posts([
+                'post_type' => 'attachment',
+                'posts_per_page' => -1,
+                'post_parent' => $this->id,
+                'post_status' => 'any',
+                'order' => 'ASC',
+                'orderby' => 'menu_order',
+                'fields' => 'ids'
+            ]);
+        }
+
+        /*
+        --------------------------------------------------
+        Set data type properties. 
+        Data properties map to WP_Post object properties;
+
+        @param string $key as in WP_Post object
+        @param mixed $value
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_data($key, $value)
+        {
+            if(!in_array('data', $this->prop_types)) return;
+
+            $_keys = [
+                'post_author',
+                'post_date',
+                'post_date_gmt',
+                'post_content',
+                'post_title',
+                'post_excerpt',
+                'post_status',
+                'comment_status',
+                'ping_status',
+                'post_password',
+                'post_name',
+                'to_ping',
+                'pinged',
+                'post_modified',
+                'post_modified_gmt',
+                'post_content_filtered',
+                'post_parent',
+                'guid',
+                'menu_order',
+                'post_type',
+                'post_mime_type',
+                'comment_count'
+            ];
+
+            if(in_array($key, $_keys))
+            {
+                $this->data[$key] = $value;
+            }
         }
 
         /*
