@@ -209,7 +209,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 case 'meta':
                     $this->set_meta($sys_key, $value);
                     break;
-                case 'term':
+                case 'taxonomy':
                     $this->set_terms($sys_key, $value);
                     break;
                 case 'attachment':
