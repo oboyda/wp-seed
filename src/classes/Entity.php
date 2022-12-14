@@ -334,9 +334,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 return $this->data;
             }
 
-            $data = !empty($this->data[$key]) ? $this->data[$key] : (isset($default) ? $default : $this->data[$key]);
-
-            return $data;
+            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
         }
 
         /*
