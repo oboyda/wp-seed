@@ -373,7 +373,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $meta = isset($this->meta[$key]) ? $this->meta[$key] : null;
 
-            $meta = isset($meta) ? (($single && isset($meta[0])) ? trim($meta[0]) : $meta) : null;
+            $meta = isset($meta) ? (($single && isset($meta[0])) ? (is_array($meta[0]) ? $meta[0] : trim($meta[0])) : $meta) : null;
 
             $meta = (empty($meta) && isset($default)) ? $default : $meta;
 
