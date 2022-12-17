@@ -7,33 +7,27 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
     class Req {
 
         private $req;
+        private $files;
     
         public function __construct()
         {
             $this->req = [];
+            $this->files = [];
         }
     
         /*
-         * Get request variable from $_REQUEST
-         *
-         * @param string $key Variable name as in $_REQUEST
-         * @param string $san_type text|textarea|int/integer|float Sanitize variable
-         * @param mixed $default Default value if variable is empty
-         * @return mixed
-         */
+        -------------------------
+        Get request variable from $_REQUEST
+        
+        @param string $key Variable name as in $_REQUEST
+        @param string $san_type text|textarea|int/integer|float Sanitize variable
+        @param mixed $default Default value if variable is empty
+        @return mixed
+        -------------------------
+        */
 
         public function get($key, $san_type='text', $default=null)
         {
-            if(is_array($key)){
-                $values = [];
-                foreach($key as $_key)
-                {
-                    $value = $this->get($_key, $san_type, $default);
-                    if($value) $values[$_key] = $value;
-                }
-                return $values;
-            }
-
             if(!isset($this->req[$key]))
             {
                 $val = isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
@@ -55,8 +49,178 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             
             return (empty($this->req[$key]) && isset($default)) ? $default : $this->req[$key];
         }
+
+        public function getFile($key, $default=null)
+        {
+            if(!isset($this->files[$key]))
+            {
+                $this->files[$key] = isset($_FILES[$key]) ? $this->parseFileInput($_FILES[$key]) : null;
+            }
+
+            return (empty($this->files[$key]) && isset($default)) ? $default : $this->files[$key];
+        }
         
-        private function sanitizeReq($val_item, $san_type='text')
+        public function validateFields($fields_config, $incl_fields=[], $skip_fields=[])
+        {
+            $result = [
+                'error_fields' => [],
+                'errors' => []
+            ];
+
+            if(!empty($fields_config))
+            {
+                foreach($fields_config as $key => $field_config)
+                {
+                    /* 
+                    Include / skip fields
+                    -------------------------
+                    */
+                    if(!empty($incl_fields) && !in_array($key, $incl_fields))
+                    {
+                        continue;
+                    }
+
+                    if(!empty($skip_fields) && in_array($key, $skip_fields))
+                    {
+                        continue;
+                    }
+
+                    $sanitize = isset($field_config['sanitize']) ? $field_config['sanitize'] : 'text';
+                    $required = isset($field_config['required']) ? $field_config['required'] : false;
+
+                    $val = $this->get($key, $sanitize);
+
+                    /* 
+                    Add to errors if required and empty
+                    -------------------------
+                    */
+                    if($required && empty($val))
+                    {
+                        $result['error_fields'][] = $key;
+                    }
+
+                    /* 
+                    Validate type
+                    -------------------------
+                    */
+                    $type = isset($field_config['type']) ? $field_config['type'] : 'text';
+
+                    switch($type)
+                    {
+                        case 'email':
+
+                            if(!filter_var($val, FILTER_VALIDATE_EMAIL))
+                            {
+                                $result['error_fields'][] = $key;
+                            }
+                            break;
+
+                        case 'file':
+                        case 'attachment':
+
+                            $file = isset($_FILES[$key]) ? $this->parseFileInput($_FILES[$key]) : null;
+
+                            /* 
+                            Add to errors if required and empty
+                            -------------------------
+                            */
+                            if($required && empty($file))
+                            {
+                                $result['error_fields'][] = $key;
+                            }
+
+                            foreach($file['name'] as $i => $file_name)
+                            {
+                                if(empty($file_name) && !$required)
+                                {
+                                    continue;
+                                }
+
+                                /* 
+                                Check server errors
+                                -------------------------
+                                */
+                                if(!empty($file['error'][$i]))
+                                {
+                                    $result['error_fields'][] = $key;
+                                    // $result['errors'][] = sprintf(__('%s failed to upload', 'ac'), $file_name);
+
+                                    continue;
+                                }
+
+                                /* 
+                                Validate type
+                                -------------------------
+                                */
+                                if(isset($field_config['file_types']) && !in_array($file['type'][$i], $field_config['file_types']))
+                                {
+                                    $result['error_fields'][] = $key;
+                                    $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
+                                }
+
+                                /* 
+                                Validate size
+                                -------------------------
+                                */
+                                if(isset($field_config['file_max_size']) && $file['size'][$i] > $field_config['file_max_size'])
+                                {
+                                    $result['error_fields'][] = $key;
+                                    $result['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
+                                }
+
+                                // $result['files'][$key][$i] = [
+                                //     'name' => $file_name,
+                                //     'tmp_name' => $file['tmp_name'][$i],
+                                //     'type' => $file['type'][$i],
+                                //     'size' => $file['size'][$i],
+                                //     'ext' => strtolower(pathinfo($file_name, PATHINFO_EXTENSION))
+                                // ];
+                            }
+
+                            /* 
+                            Add del fields
+                            -------------------------
+                            */
+                            // $del_key = $key . '_del';
+                            // $del_fields = $this->get($del_key);
+                            // if($del_fields)
+                            // {
+                            //     $result['fields'][$del_key] = $del_fields;
+                            // }
+
+                            /* 
+                            Skip when not required to check empty vars as for an update
+                            -------------------------
+                            */
+                            if(empty($result['files'][$key]))
+                            {
+                                break;
+                            }
+
+                            /* 
+                            Add to errors if required and empty
+                            -------------------------
+                            */
+                            if(empty($result['files'][$key]))
+                            {
+                                $result['error_fields'][] = $key;
+                            }
+
+                            break;
+
+                        default:
+
+                            $result['fields'][$key] = $val;
+                    }
+                }
+            }
+
+            // $result['error_fields'] = array_unique($result['error_fields']);
+
+            return $result;
+        }
+
+        protected function sanitizeReq($val_item, $san_type='text')
         {
             $val_item = trim($val_item);
             
@@ -80,25 +244,41 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             return $val_item;
         }
         
-        private function sanitizeReqArr(&$val_item, $san_type='text', $urldec=false)
+        protected function sanitizeReqArr(&$val_item, $san_type='text', $urldec=false)
         {
             if($urldec) $val_item = urldecode($val_item);
             $val_item = self::sanitizeReq($val_item, $san_type);
         }
 
-        public function getFile($key)
+        protected function parseFileInput($file)
         {
-            if(is_array($key)){
-                $files = [];
-                foreach($key as $_key)
-                {
-                    $file = $this->getFile($_key);
-                    if($file) $files[$_key] = $file;
-                }
-                return $files;
+            $_file = [];
+
+            if(isset($file['name']) && !is_array($file['name']))
+            {
+                $file['name'] = [$file['name']];
+                $file['type'] = isset($file['type']) ? [$file['type']] : [''];
+                $file['tmp_name'] = isset($file['tmp_name']) ? [$file['tmp_name']] : [''];
+                $file['error'] = isset($file['error']) ? [$file['error']] : [0];
+                $file['size'] = isset($file['size']) ? [$file['size']] : [0];
+
             }
 
-            return isset($_FILES[$key]) ? $_FILES[$key] : false;
+            if(isset($file['name']))
+            {
+                foreach($file['name'] as $i => $file_name)
+                {
+                    $_file[$i] = [
+                        'name' => $file_name,
+                        'type' => (is_array($file['type']) && isset($file['type'][$i])) ? $file['type'][$i] : '',
+                        'tmp_name' => (is_array($file['tmp_name']) && isset($file['tmp_name'][$i])) ? $file['tmp_name'][$i] : '',
+                        'error' => (is_array($file['error']) && isset($file['error'][$i])) ? $file['error'][$i] : 0,
+                        'size' => (is_array($file['size']) && isset($file['size'][$i])) ? $file['size'][$i] : 0
+                    ];
+                }
+            }
+
+            return $_file;
         }
     }
 }
