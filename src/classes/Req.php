@@ -99,10 +99,6 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                         $result['error_fields'][] = $key;
                     }
 
-                    /* 
-                    Validate type
-                    -------------------------
-                    */
                     $type = isset($field_config['type']) ? $field_config['type'] : 'text';
 
                     switch($type)
@@ -120,18 +116,14 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
                             $file = isset($_FILES[$key]) ? $this->parseFileInput($_FILES[$key]) : null;
 
-                            /* 
-                            Add to errors if required and empty
-                            -------------------------
-                            */
                             if($required && empty($file))
                             {
                                 $result['error_fields'][] = $key;
                             }
 
-                            foreach($file['name'] as $i => $file_name)
+                            foreach($file as $i => $_file)
                             {
-                                if(empty($file_name) && !$required)
+                                if(empty($_file['name']) && !$required)
                                 {
                                     continue;
                                 }
@@ -140,7 +132,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 Check server errors
                                 -------------------------
                                 */
-                                if(!empty($file['error'][$i]))
+                                if(!empty($_file['error']))
                                 {
                                     $result['error_fields'][] = $key;
                                     // $result['errors'][] = sprintf(__('%s failed to upload', 'ac'), $file_name);
@@ -152,7 +144,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 Validate type
                                 -------------------------
                                 */
-                                if(isset($field_config['file_types']) && !in_array($file['type'][$i], $field_config['file_types']))
+                                if(isset($field_config['file_types']) && !in_array($_file['type'], $field_config['file_types']))
                                 {
                                     $result['error_fields'][] = $key;
                                     $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
@@ -162,60 +154,26 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 Validate size
                                 -------------------------
                                 */
-                                if(isset($field_config['file_max_size']) && $file['size'][$i] > $field_config['file_max_size'])
+                                if(isset($field_config['file_max_size']) && $_file['size'] > $field_config['file_max_size'])
                                 {
                                     $result['error_fields'][] = $key;
                                     $result['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
                                 }
-
-                                // $result['files'][$key][$i] = [
-                                //     'name' => $file_name,
-                                //     'tmp_name' => $file['tmp_name'][$i],
-                                //     'type' => $file['type'][$i],
-                                //     'size' => $file['size'][$i],
-                                //     'ext' => strtolower(pathinfo($file_name, PATHINFO_EXTENSION))
-                                // ];
-                            }
-
-                            /* 
-                            Add del fields
-                            -------------------------
-                            */
-                            // $del_key = $key . '_del';
-                            // $del_fields = $this->get($del_key);
-                            // if($del_fields)
-                            // {
-                            //     $result['fields'][$del_key] = $del_fields;
-                            // }
-
-                            /* 
-                            Skip when not required to check empty vars as for an update
-                            -------------------------
-                            */
-                            if(empty($result['files'][$key]))
-                            {
-                                break;
-                            }
-
-                            /* 
-                            Add to errors if required and empty
-                            -------------------------
-                            */
-                            if(empty($result['files'][$key]))
-                            {
-                                $result['error_fields'][] = $key;
                             }
 
                             break;
 
-                        default:
+                        // default:
 
-                            $result['fields'][$key] = $val;
+                        //     if($required && empty($file))
+                        //     {
+                        //         $result['error_fields'][] = $key;
+                        //     }
                     }
                 }
             }
 
-            // $result['error_fields'] = array_unique($result['error_fields']);
+            $result['error_fields'] = array_unique($result['error_fields']);
 
             return $result;
         }
