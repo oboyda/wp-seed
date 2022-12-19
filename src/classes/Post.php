@@ -73,11 +73,19 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             if($this->id)
             {
                 $meta = get_post_meta($this->id);
-                foreach((array)$meta as $key => $meta_item)
+
+                foreach($this->get_props_config() as $key => $prop_config)
                 {
-                    foreach((array)$meta_item as $i => $m)
+                    $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
+                    
+                    if($type == 'meta' && isset($meta[$key]))
                     {
-                        $this->meta[$key][$i] = maybe_unserialize($m);
+                        $this->meta[$key] = [];
+
+                        foreach($meta[$key] as $i => $_meta)
+                        {
+                            $this->meta[$key][$i] = maybe_unserialize($_meta);
+                        }
                     }
                 }
             }
@@ -177,32 +185,27 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         {
             $id = 0;
 
-            $data = $this->data;
-
-            if(!empty($this->meta))
+            if(!$this->get_data('post_type') && isset($this->post_type))
             {
-                $data['meta_input'] = $this->get_meta(null, null, true);
+                $this->set_data('post_type', $this->post_type);
             }
-            if(!isset($data['post_status']))
+            if(!$this->get_data('post_status'))
             {
-                $data['post_status'] = 'publish';
+                $this->set_data('post_status', 'publish');
             }
 
-            if(!empty($data))
+            $data = array_merge($this->get_data(), [
+                'meta_input' => $this->get_meta(null, null, true)
+            ]);
+
+            if(isset($data['ID']))
             {
-                if(empty($data['ID']))
-                {
-                    if(isset($this->post_type))
-                    {
-                        $data['post_type'] = $this->post_type;
-                    }
-                    $id = wp_insert_post($data);
-                    do_action('wpseed_post_inserted', $id, $this);
-                }
-                else{
-                    $id = wp_update_post($data);
-                    do_action('wpseed_post_updated', $id, $this);
-                }
+                $id = wp_insert_post($data);
+                do_action('wpseed_post_inserted', $id, $this);
+            }
+            else{
+                $id = wp_update_post($data);
+                do_action('wpseed_post_updated', $id, $this);
             }
 
             if(!empty($this->terms) && $id)

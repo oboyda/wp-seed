@@ -69,11 +69,19 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             if($this->id)
             {
                 $meta = get_user_meta($this->id);
-                foreach((array)$meta as $key => $meta_item)
+
+                foreach($this->get_props_config() as $key => $prop_config)
                 {
-                    foreach((array)$meta_item as $i => $m)
+                    $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
+                    
+                    if($type == 'meta' && isset($meta[$key]))
                     {
-                        $this->meta[$key][$i] = maybe_unserialize($m);
+                        $this->meta[$key] = [];
+
+                        foreach($meta[$key] as $i => $_meta)
+                        {
+                            $this->meta[$key][$i] = maybe_unserialize($_meta);
+                        }
                     }
                 }
             }
@@ -159,7 +167,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             // }
 
             $data = array_merge($this->get_data(), [
-                'meta_input' => $this->get_meta(null, [], false)
+                'meta_input' => $this->get_meta(null, null, true)
             ]);
 
             $id = wp_insert_user($data);
