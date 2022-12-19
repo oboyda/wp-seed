@@ -65,7 +65,16 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
         protected function addErrorField($field)
         {
-            if(!in_array($field, $this->error_fields))
+            if(is_array($field) && !empty($field))
+            {
+                foreach($field as $_field)
+                {
+                    $this->addErrorField($_field);
+                }
+                return;
+            }
+
+            if(!empty($field) && !in_array($field, $this->error_fields))
             {
                 $this->error_fields[] = $field;
             }
@@ -81,16 +90,28 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             }
         }
 
+        protected function validateFields($fields_config, $respond_on_errors=false)
+        {
+            $validated = $this->req->validateFields($fields_config);
+
+            if(!empty($validated['error_fields']))
+            {
+                $this->addErrorField($validated['error_fields']);
+            }
+
+            if($respond_on_errors && $this->hasErrors())
+            {
+                $this->respond();
+            }
+        }
+
         protected function checkErrorFields($fields, $required_keys, $respond_on_errors=false)
         {
             $empty_fields = self::checkArrayEmptyVals($fields, $required_keys);
 
-            if($empty_fields)
+            if(!empty($empty_fields))
             {
-                foreach($empty_fields as $empty_field)
-                {
-                    $this->addErrorField($empty_field);
-                }
+                $this->addErrorField($empty_fields);
             }
 
             if($respond_on_errors && $this->hasErrors())

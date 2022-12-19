@@ -60,31 +60,17 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             return (empty($this->files[$key]) && isset($default)) ? $default : $this->files[$key];
         }
         
-        public function validateFields($fields_config, $incl_fields=[], $skip_fields=[])
+        public function validateFields($fields_config)
         {
             $result = [
-                'error_fields' => [],
-                'errors' => []
+                'error_fields' => []
+                // 'errors' => []
             ];
 
             if(!empty($fields_config))
             {
                 foreach($fields_config as $key => $field_config)
                 {
-                    /* 
-                    Include / skip fields
-                    -------------------------
-                    */
-                    if(!empty($incl_fields) && !in_array($key, $incl_fields))
-                    {
-                        continue;
-                    }
-
-                    if(!empty($skip_fields) && in_array($key, $skip_fields))
-                    {
-                        continue;
-                    }
-
                     $sanitize = isset($field_config['sanitize']) ? $field_config['sanitize'] : 'text';
                     $required = isset($field_config['required']) ? $field_config['required'] : false;
 
@@ -147,7 +133,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(isset($field_config['file_types']) && !in_array($_file['type'], $field_config['file_types']))
                                 {
                                     $result['error_fields'][] = $key;
-                                    $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
+                                    // $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
                                 }
 
                                 /* 
@@ -157,7 +143,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(isset($field_config['file_max_size']) && $_file['size'] > $field_config['file_max_size'])
                                 {
                                     $result['error_fields'][] = $key;
-                                    $result['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
+                                    // $result['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
                                 }
                             }
 
