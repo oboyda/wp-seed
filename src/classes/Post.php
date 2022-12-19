@@ -78,7 +78,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 {
                     $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
                     
-                    if($type == 'meta' && isset($meta[$key]))
+                    if(in_array($type, ['meta', 'attachment']) && isset($meta[$key]))
                     {
                         $this->meta[$key] = [];
 

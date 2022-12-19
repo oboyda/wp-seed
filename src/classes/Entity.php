@@ -88,7 +88,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 return;
             }
 
-            // $prop_config = $this->get_props_config($key);
+            $prop_config = $this->get_props_config($key);
 
             // if(!(isset($prop_config['type']) && in_array($prop_config['type'], ['meta', 'attachment'])))
             // {
