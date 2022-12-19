@@ -132,6 +132,22 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
         protected function validateFields($fields_config, $respond_on_errors=false)
         {
+            // if(!empty($extra_required_fields))
+            // {
+            //     foreach($extra_required_fields as $key => $field)
+            //     {
+            //         if(is_array($field))
+            //         {
+            //             $fields_config[$key] = $field;
+            //         }
+            //         else{
+            //             $fields_config[$field] = [
+            //                 'validate' => 'text'
+            //             ];
+            //         }
+            //     }
+            // }
+
             $validated = $this->req->validateFields($fields_config);
 
             if(!empty($validated['error_fields']))

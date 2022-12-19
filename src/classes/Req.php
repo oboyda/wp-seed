@@ -73,44 +73,43 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                 foreach($fields_config as $key => $field_config)
                 {
                     $type = isset($field_config['type']) ? $field_config['type'] : 'text';
-                    $sanitize = isset($field_config['sanitize']) ? $field_config['sanitize'] : 'text';
+                    $validate = in_array($type, ['file', 'attachment']) ? 'file' : (isset($field_config['validate']) ? $field_config['validate'] : 'text');
                     $required = isset($field_config['required']) ? $field_config['required'] : false;
 
-                    $val = in_array($type, ['file', 'attachment']) ? $this->getFile($key) : $this->get($key, $sanitize);
+                    $value = ($validate == 'file') ? $this->getFile($key) : $this->get($key, $validate);
 
                     /* 
                     Add to errors if required and empty
                     -------------------------
                     */
-                    if($required && empty($val))
+                    if($required && empty($value))
                     {
                         $result['error_fields'][] = $key;
                     }
 
-                    switch($type)
+                    switch($validate)
                     {
                         case 'email':
 
-                            if(empty($val))
+                            if(empty($value))
                             {
                                 break;
                             }
 
-                            if(!filter_var($val, FILTER_VALIDATE_EMAIL))
+                            if(!filter_var($value, FILTER_VALIDATE_EMAIL))
                             {
                                 $result['error_fields'][] = $key;
                             }
                             break;
 
                         case 'file':
-                        case 'attachment':
 
-                            if(empty($val))
+                            if(empty($value))
                             {
                                 break;
                             }
 
-                            foreach($val as $i => $file)
+                            foreach($value as $i => $file)
                             {
                                 /* 
                                 Check server errors
@@ -148,7 +147,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
                     // if(!in_array($key, $result['error_fields']))
                     // {
-                        $result['fields'][$key] = $val;
+                        $result['fields'][$key] = $value;
                     // }
                 }
             }
