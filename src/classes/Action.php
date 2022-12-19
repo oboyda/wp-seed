@@ -31,22 +31,10 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             $this->req = new Req();
         }
 
-        protected function getRequestTypeProps($props_config)
-        {
-            $req_props = [];
-
-            foreach($props_config as $key => $prop_config)
-            {
-                $cast = isset($prop_config['cast']) ? $prop_config['cast'] : 'text';
-                $req_value = $this->getReq($key, $cast);
-                if(isset($req_value))
-                {
-                    $req_props[$key] = $req_value;
-                }
-            }
-
-            return $req_props;
-        }
+        /*
+        Setters
+        -------------------------
+        */
 
         protected function setStatus($status)
         {
@@ -90,6 +78,58 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             }
         }
 
+        protected function addSuccessMessage($message)
+        {
+            if(!in_array($message, $this->success_messages))
+            {
+                $this->success_messages[] = $message;
+                $this->messages .= $this->wrapResponseMessages($message, 'success');
+            }
+        }
+
+        protected function addErrorMessage($message)
+        {
+            if(is_array($message) && !empty($message))
+            {
+                foreach($message as $_message)
+                {
+                    $this->addErrorMessage($_message);
+                }
+                return;
+            }
+
+            if(!empty($message) && !in_array($message, $this->error_messages))
+            {
+                $this->error_messages[] = $message;
+                $this->messages .= $this->wrapResponseMessages($message, 'error');
+            }
+        }
+
+        protected function setValue($key, $value)
+        {
+            $this->values[$key] = $value;
+        }
+
+        /*
+        Getters
+        -------------------------
+        */
+
+        protected function getReq($key, $san='text', $default=null)
+        {
+            return $this->req->get($key, $san, $default);
+        }
+
+        protected function getReqFile($key, $default=null)
+        {
+            return $this->req->getFile($key, $default);
+        }
+
+        /*
+        Helpers
+        -------------------------
+        */
+
         protected function validateFields($fields_config, $respond_on_errors=false)
         {
             $validated = $this->req->validateFields($fields_config);
@@ -97,6 +137,11 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             if(!empty($validated['error_fields']))
             {
                 $this->addErrorField($validated['error_fields']);
+            }
+
+            if(!empty($validated['errors']))
+            {
+                $this->addErrorMessage($validated['errors']);
             }
 
             if($respond_on_errors && $this->hasErrors())
@@ -159,24 +204,6 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             }
         }
 
-        protected function addSuccessMessage($message)
-        {
-            if(!in_array($message, $this->success_messages))
-            {
-                $this->success_messages[] = $message;
-                $this->messages .= $this->wrapResponseMessages($message, 'success');
-            }
-        }
-
-        protected function addErrorMessage($message)
-        {
-            if(!in_array($message, $this->error_messages))
-            {
-                $this->error_messages[] = $message;
-                $this->messages .= $this->wrapResponseMessages($message, 'error');
-            }
-        }
-
         protected function wrapResponseMessages($messages, $type='success')
         {
             $w_messages = [];
@@ -187,24 +214,14 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             return implode('', $w_messages);
         }
 
-        protected function setValue($key, $value)
-        {
-            $this->values[$key] = $value;
-        }
-
-        protected function getReq($key, $san='text', $default=null)
-        {
-            return $this->req->get($key, $san, $default);
-        }
-
         protected function hasErrors()
         {
-            return (!$this->status || !empty($this->error_fields));
+            return (!empty($this->error_fields) || !empty($this->error_messages));
         }
 
         protected function respond($resp=[])
         {
-            if($this->error_fields)
+            if(!empty($this->error_fields))
             {
                 $this->setStatus(false);
                 $this->addErrorMessage(__('Please, check the required fields.', 'wpseed'));

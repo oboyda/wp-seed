@@ -64,8 +64,8 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
         {
             $result = [
                 'fields' => [],
-                'error_fields' => []
-                // 'errors' => []
+                'error_fields' => [],
+                'errors' => []
             ];
 
             if(!empty($fields_config))
@@ -109,7 +109,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(!empty($file['error']))
                                 {
                                     $result['error_fields'][] = $key;
-                                    // $result['errors'][] = sprintf(__('%s failed to upload', 'ac'), $file_name);
+                                    $result['errors'][] = sprintf(__('%s failed to upload', 'wpseed'), $file['name']);
                                 }
 
                                 /* 
@@ -119,7 +119,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(isset($field_config['file_types']) && !in_array($file['type'], $field_config['file_types']))
                                 {
                                     $result['error_fields'][] = $key;
-                                    // $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
+                                    $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'wpseed'), $file['name'], $file['type']);
                                 }
 
                                 /* 
@@ -129,7 +129,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(isset($field_config['file_max_size']) && $file['size'] > $field_config['file_max_size'])
                                 {
                                     $result['error_fields'][] = $key;
-                                    // $result['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
+                                    $result['errors'][] = sprintf(__('%s file size is not allowed', 'wpseed'), $file['name']);
                                 }
                             }
 
