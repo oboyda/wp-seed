@@ -503,11 +503,12 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         --------------------------------------------------
         */
 
-        public function get_prop($key, $default=null, $single=true)
+        public function get_prop($key, $_default=null, $single=true)
         {
             $prop_config = $this->get_props_config($key);
             $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
             $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
+            $default = isset($prop_config['default']) ? $prop_config['default'] : $_default;
 
             switch($type)
             {
