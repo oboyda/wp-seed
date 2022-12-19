@@ -403,11 +403,14 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 return (empty($this->meta) && isset($default)) ? $default : $this->meta;
             }
 
-            $meta = isset($this->meta[$key]) ? $this->meta[$key] : null;
+            $meta = isset($this->meta[$key]) ? $this->meta[$key] : [];
 
-            $meta = isset($meta) ? (($single && isset($meta[0])) ? (is_array($meta[0]) ? $meta[0] : trim($meta[0])) : $meta) : null;
+            if($single)
+            {
+                $meta = isset($meta[0]) ? $meta[0] : null;
+            }
 
-            $meta = (empty($meta) && isset($default)) ? $default : $meta;
+            $meta = (empty($meta) && isset($default)) ? $default : (is_string($meta) ? trim($meta) : $meta);
 
             return $this->cast_prop($meta, $key);
         }
