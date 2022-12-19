@@ -91,6 +91,11 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                     {
                         case 'email':
 
+                            if(empty($val))
+                            {
+                                break;
+                            }
+
                             if(!filter_var($val, FILTER_VALIDATE_EMAIL))
                             {
                                 $result['error_fields'][] = $key;
@@ -99,6 +104,11 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
                         case 'file':
                         case 'attachment':
+
+                            if(empty($val))
+                            {
+                                break;
+                            }
 
                             foreach($val as $i => $file)
                             {
