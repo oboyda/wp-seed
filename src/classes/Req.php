@@ -63,6 +63,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
         public function validateFields($fields_config)
         {
             $result = [
+                'fields' => [],
                 'error_fields' => []
                 // 'errors' => []
             ];
@@ -71,10 +72,11 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             {
                 foreach($fields_config as $key => $field_config)
                 {
+                    $type = isset($field_config['type']) ? $field_config['type'] : 'text';
                     $sanitize = isset($field_config['sanitize']) ? $field_config['sanitize'] : 'text';
                     $required = isset($field_config['required']) ? $field_config['required'] : false;
 
-                    $val = $this->get($key, $sanitize);
+                    $val = in_array($type, ['file', 'attachment']) ? $this->getFile($key) : $this->get($key, $sanitize);
 
                     /* 
                     Add to errors if required and empty
@@ -84,8 +86,6 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                     {
                         $result['error_fields'][] = $key;
                     }
-
-                    $type = isset($field_config['type']) ? $field_config['type'] : 'text';
 
                     switch($type)
                     {
@@ -100,37 +100,23 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                         case 'file':
                         case 'attachment':
 
-                            $file = isset($_FILES[$key]) ? $this->parseFileInput($_FILES[$key]) : null;
-
-                            if($required && empty($file))
+                            foreach($val as $i => $file)
                             {
-                                $result['error_fields'][] = $key;
-                            }
-
-                            foreach($file as $i => $_file)
-                            {
-                                if(empty($_file['name']) && !$required)
-                                {
-                                    continue;
-                                }
-
                                 /* 
                                 Check server errors
                                 -------------------------
                                 */
-                                if(!empty($_file['error']))
+                                if(!empty($file['error']))
                                 {
                                     $result['error_fields'][] = $key;
                                     // $result['errors'][] = sprintf(__('%s failed to upload', 'ac'), $file_name);
-
-                                    continue;
                                 }
 
                                 /* 
                                 Validate type
                                 -------------------------
                                 */
-                                if(isset($field_config['file_types']) && !in_array($_file['type'], $field_config['file_types']))
+                                if(isset($field_config['file_types']) && !in_array($file['type'], $field_config['file_types']))
                                 {
                                     $result['error_fields'][] = $key;
                                     // $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
@@ -140,7 +126,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 Validate size
                                 -------------------------
                                 */
-                                if(isset($field_config['file_max_size']) && $_file['size'] > $field_config['file_max_size'])
+                                if(isset($field_config['file_max_size']) && $file['size'] > $field_config['file_max_size'])
                                 {
                                     $result['error_fields'][] = $key;
                                     // $result['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
@@ -148,14 +134,12 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                             }
 
                             break;
-
-                        // default:
-
-                        //     if($required && empty($file))
-                        //     {
-                        //         $result['error_fields'][] = $key;
-                        //     }
                     }
+
+                    // if(!in_array($key, $result['error_fields']))
+                    // {
+                        $result['fields'][$key] = $val;
+                    // }
                 }
             }
 

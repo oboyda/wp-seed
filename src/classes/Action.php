@@ -101,8 +101,10 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
             if($respond_on_errors && $this->hasErrors())
             {
-                $this->respond();
+                return $this->respond();
             }
+
+            return $validated;
         }
 
         protected function checkErrorFields($fields, $required_keys, $respond_on_errors=false)
