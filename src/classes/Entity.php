@@ -90,7 +90,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $prop_config = $this->get_props_config($key);
 
-            if(!(isset($prop_config['type']) && $prop_config['type'] === 'meta'))
+            if(!(isset($prop_config['type']) && in_array($prop_config['type'], ['meta', 'attachment'])))
             {
                 return;
             }
@@ -116,6 +116,24 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
         /*
         --------------------------------------------------
+        Set data type properties. 
+        Data properties map to WP_Post object properties;
+
+        @param string $key as in WP_Post object
+        @param mixed $value
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_data($key, $value)
+        {
+            if(!in_array('data', $this->prop_types)) return;
+
+            // Should be implemented by the child class
+        }
+
+        /*
+        --------------------------------------------------
         Set terms
 
         @param string $taxonomy
@@ -126,18 +144,32 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function set_terms($taxonomy, $terms)
         {
-            if(!in_array('term', $this->prop_types)) return;
-
-            if(!isset($this->terms[$taxonomy])) $this->terms[$taxonomy] = [];
-
-            foreach((array)$terms as $term)
+            if(!in_array('term', $this->prop_types))
             {
-                if(is_a($term, 'WP_Term'))
+                return;
+            }
+
+            if(!is_array($terms))
+            {
+                $terms = [$terms];
+            }
+
+            if(!isset($this->terms[$taxonomy]))
+            {
+                $this->terms[$taxonomy] = [];
+            }
+
+            if(!empty($terms))
+            {
+                foreach($terms as $term)
                 {
-                    $this->terms[$taxonomy][] = $term->term_id;
-                }
-                else{
-                    $this->terms[$taxonomy][] = (int)$term;
+                    if(is_a($term, 'WP_Term'))
+                    {
+                        $this->terms[$taxonomy][] = $term->term_id;
+                    }
+                    else{
+                        $this->terms[$taxonomy][] = (int)$term;
+                    }
                 }
             }
         }
@@ -152,37 +184,37 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return void
         --------------------------------------------------
         */
-        public function set_attachments($key, $attachments)
+        public function set_attachments($key, $attachments, $set_meta=true)
         {
             if(!in_array('attachment', $this->prop_types))
             {
                 return;
             }
 
-            $prop_config = $this->get_props_config($key);
-            
-            if(!(isset($prop_config['type']) && $prop_config['type'] === 'attachment'))
+            if(!is_array($attachments))
             {
-                return;
+                $attachments = [$attachments];
             }
 
-            $_attachments = [];
-
-            foreach((array)$attachments as $attachment)
+            if(!empty($attachments))
             {
-                if(is_a($attachment, '\WPSEED\Attachment'))
+                foreach($attachments as $attachment)
                 {
-                    $_attachments[$key][] = $attachment->get_id();
-                }
-                else
-                {
-                    $_attachments[$key][] = (int)$attachment;
+                    if(is_a($attachment, '\WPSEED\Attachment'))
+                    {
+                        $this->attachments[] = $attachment->get_id();
+                    }
+                    else
+                    {
+                        $this->attachments[] = (int)$attachment;
+                    }
                 }
             }
 
-            if(!is_array($attachments) && isset($_attachments[0])) $_attachments = $_attachments[0];
-
-            $this->set_meta($key, $_attachments);
+            if($set_meta)
+            {
+                $this->set_meta($key, $this->attachments);
+            }
         }
 
         /*
