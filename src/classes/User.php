@@ -95,6 +95,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             if(!in_array('data', $this->prop_types)) return;
 
             $_keys = [
+                'ID',
                 'user_login',
                 'user_pass',
                 'user_nicename',
@@ -147,45 +148,36 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function persist()
         {
-            $id = 0;
-
-            if(!empty($this->data))
+            if(!$this->get_data('user_login'))
             {
-                
-                $user_email = $this->get_data('user_email');
-
-                if(empty($user_email)) return;
-
-                $user_login = $this->get_data('user_login');
-
-                if(empty($user_login)){
-                    $this->set_data('user_login', $user_email);
-                }
-                
-                $data = $this->get_data();
-                $meta = $this->get_meta(null, null, true);
-
-                $password = $data['user_pass'];
-                unset($data['user_pass']);
-
-                if(!empty($data['ID']))
-                {
-                    $id = wp_update_user($data);
-                }
-                elseif(!empty($password))
-                {
-                    $data['user_pass'] = $password;
-                    $id = wp_insert_user($data);
-                }
+                $this->set_data('user_login', $this->get_data('user_email'));
             }
 
-            if($id !== $this->id)
+            // if($this->get_data('user_pass'))
+            // {
+            //     $this->set_data(wp_hash_password($this->get_data('user_pass')));
+            // }
+
+            $data = array_merge($this->get_data(), [
+                'meta_input' => $this->get_meta(null, [], false)
+            ]);
+
+            $id = wp_insert_user($data);
+
+            if(is_wp_error($id))
+            {
+                return false;
+            }
+
+            if($id !== $this->get_id())
             {
                 $this->__construct(
                     $id, 
                     $this->props_config
                 );
             }
+
+            return true;
         }
 
         /*

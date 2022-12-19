@@ -135,6 +135,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             if(!in_array('data', $this->prop_types)) return;
 
             $_keys = [
+                'ID',
                 'post_author',
                 'post_date',
                 'post_date_gmt',
