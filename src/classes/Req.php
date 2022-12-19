@@ -73,7 +73,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                 foreach($fields_config as $key => $field_config)
                 {
                     $type = isset($field_config['type']) ? $field_config['type'] : 'text';
-                    $validate = in_array($type, ['file', 'attachment']) ? 'file' : (isset($field_config['validate']) ? $field_config['validate'] : 'text');
+                    $validate = in_array($type, ['file', 'attachment']) ? 'file' : ( isset($field_config['validate']) ? $field_config['validate'] : (isset($field_config['cast']) ? $field_config['cast'] : 'text') );
                     $required = isset($field_config['required']) ? $field_config['required'] : false;
 
                     $value = ($validate == 'file') ? $this->getFile($key) : $this->get($key, $validate);
