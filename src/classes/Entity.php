@@ -182,7 +182,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             if(!is_array($attachments) && isset($_attachments[0])) $_attachments = $_attachments[0];
 
-            $thit->set_meta($key, $_attachments);
+            $this->set_meta($key, $_attachments);
         }
 
         /*

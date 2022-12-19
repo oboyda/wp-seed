@@ -206,13 +206,16 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             {
                 foreach($file['name'] as $i => $file_name)
                 {
-                    $_file[$i] = [
-                        'name' => $file_name,
-                        'type' => (is_array($file['type']) && isset($file['type'][$i])) ? $file['type'][$i] : '',
-                        'tmp_name' => (is_array($file['tmp_name']) && isset($file['tmp_name'][$i])) ? $file['tmp_name'][$i] : '',
-                        'error' => (is_array($file['error']) && isset($file['error'][$i])) ? $file['error'][$i] : 0,
-                        'size' => (is_array($file['size']) && isset($file['size'][$i])) ? $file['size'][$i] : 0
-                    ];
+                    if(!empty($file_name))
+                    {
+                        $_file[$i] = [
+                            'name' => $file_name,
+                            'type' => (is_array($file['type']) && isset($file['type'][$i])) ? $file['type'][$i] : '',
+                            'tmp_name' => (is_array($file['tmp_name']) && isset($file['tmp_name'][$i])) ? $file['tmp_name'][$i] : '',
+                            'error' => (is_array($file['error']) && isset($file['error'][$i])) ? $file['error'][$i] : 0,
+                            'size' => (is_array($file['size']) && isset($file['size'][$i])) ? $file['size'][$i] : 0
+                        ];
+                    }
                 }
             }
 
