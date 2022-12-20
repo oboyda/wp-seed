@@ -60,6 +60,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
         protected function _set_props_config($props_config)
         {
+            $this->props_config = [];
+            
             foreach((array)$props_config as $key => $prop_config)
             {
                 $this->props_config[$key] = wp_parse_args($prop_config, [
