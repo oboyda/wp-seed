@@ -209,7 +209,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $attachment_inserting = false;
             $attachment_ids = [];
-            $attachment_ids_del = ($this->get_props_config($key, 'insert_policy', 'add') === 'replace') ? $this->get_meta($key, []) : [];
+            $attachment_ids_del = ($this->get_props_config($key, 'insert_mode', 'add') === 'replace') ? $this->get_meta($key, []) : [];
 
             if(!empty($attachments))
             {
