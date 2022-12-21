@@ -70,7 +70,34 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
             if(!empty($fields_config))
             {
+                // Check if dynamic configs need to be created
+                $_fields_config = [];
                 foreach($fields_config as $key => $field_config)
+                {
+                    $_fields_config[$key] = $field_config;
+
+                    $type = isset($field_config['type']) ? $field_config['type'] : 'text';
+                    if(in_array($type, ['file', 'attachment']))
+                    {
+                        $dyn_key = isset($field_config['attachment_delete_input']) ? $field_config['attachment_delete_input'] : $key . '_del';
+                        $_fields_config[$dyn_key] = [
+                            'type' => 'attachment_action',
+                            'validate' => 'integer',
+                            'attachment_action_parent' => $key,
+                            'attachment_action_type' => 'delete'
+                        ];
+
+                        $dyn_key = isset($field_config['attachment_order_input']) ? $field_config['attachment_delete_input'] : $key . '_order';
+                        $_fields_config[$dyn_key] = [
+                            'type' => 'attachment_action',
+                            'validate' => 'integer',
+                            'attachment_action_parent' => $key,
+                            'attachment_action_type' => 'order'
+                        ];
+                    }
+                }
+
+                foreach($_fields_config as $key => $field_config)
                 {
                     $type = isset($field_config['type']) ? $field_config['type'] : 'text';
                     $validate = in_array($type, ['file', 'attachment']) ? 'file' : ( isset($field_config['validate']) ? $field_config['validate'] : (isset($field_config['cast']) ? $field_config['cast'] : 'text') );

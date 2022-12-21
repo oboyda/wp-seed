@@ -77,7 +77,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 {
                     $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
                     
-                    if(in_array($type, ['meta', 'attachment']) && isset($meta[$key]))
+                    if(in_array($type, ['meta', 'file', 'attachment']) && isset($meta[$key]))
                     {
                         $this->meta[$key] = [];
 
@@ -343,7 +343,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                         }
                     }
 
-                    if($this->get_props_config($key, 'insert_mode', 'add') === 'add')
+                    if($this->get_props_config($key, 'attachment_insert_mode', 'add') === 'add')
                     {
                         $attachment_ids = array_merge($attachment_ids, $this->get_meta($key, []));
                     }

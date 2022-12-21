@@ -208,19 +208,24 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             }
 
             $attachment_inserting = false;
-            $attachment_ids = [];
-            $attachment_ids_del = ($this->get_props_config($key, 'insert_mode', 'add') === 'replace') ? $this->get_meta($key, []) : [];
 
+            $attachment_ids = [];
+            $attachment_ids_del = [];
+
+            $attachment_key = $this->get_props_config($key, 'attachment_action_parent', $key);
+            $attachment_action_type = $this->get_props_config($key, 'attachment_action_type', $this->get_props_config($key, 'attachment_insert_mode'));
+
+            // $attachments can be of different types. Treat them differently
             if(!empty($attachments))
             {
-                $this->attachments_insert[$key] = [];
+                $this->attachments_insert[$attachment_key] = [];
 
                 foreach($attachments as $attachment)
                 {
                     // Its file uploading. $attachment contains file data
                     if(is_array($attachment) && isset($attachment['name']))
                     {
-                        $this->attachments_insert[$key][] = new Attachment(0, [], $this->get_id(), $attachment);
+                        $this->attachments_insert[$attachment_key][] = new Attachment(0, [], $this->get_id(), $attachment);
                     }
                     elseif(is_a($attachment, '\WPSEED\Attachment'))
                     {
@@ -232,17 +237,40 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                     }
                 }
 
-                if(!empty($attachment_ids))
-                {
-                    // Make a difference to check again what really needs to be deleted
-                    $attachment_ids_del = array_diff($attachment_ids_del, $attachment_ids);
-
-                    $this->attachments = array_unique(array_merge($this->attachments, $attachment_ids));
-                }
-
-                $attachment_inserting = !empty($this->attachments_insert[$key]);
+                $attachment_inserting = !empty($this->attachments_insert[$attachment_key]);
             }
 
+            if(!$attachment_inserting)
+            {
+                return;
+            }
+
+            // When attachment dynamic fields are defined as delete and reorder
+            if(!empty($attachment_action_type) && !empty($attachment_ids))
+            {
+                switch($attachment_action_type)
+                {
+                    case 'reorder':
+                        $attachment_ids_parent = $this->get_attachments($attachment_key, []);
+                        $attachment_ids = array_unique(array_merge($attachment_ids, $attachment_ids_parent));
+                    break;
+                    case 'delete':
+                        $attachment_ids_del = $attachment_ids;
+                        $attachment_ids = [];
+                    break;
+                    case 'replace':
+                        $attachment_ids_del = $this->get_meta($attachment_key, []);
+                    break;
+                }
+            }
+
+            // Make a difference to check what really needs to be deleted
+            if(!empty($attachment_ids_del) && !empty($attachment_ids))
+            {
+                $attachment_ids_del = array_diff($attachment_ids_del, $attachment_ids);
+            }
+
+            // Delete attachments
             if(!empty($attachment_ids_del))
             {
                 $this->attachments_delete[$key] = [];
@@ -251,16 +279,19 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 {
                     $this->attachments_delete[$key][] = new Attachment($attachment_id_del);
                 }
+            }
 
+            if(!empty($attachment_ids))
+            {
+                $this->attachments = array_unique(array_merge($this->attachments, $attachment_ids));
+            }
+
+            if(!empty($attachment_ids_del))
+            {
                 $this->attachments = array_diff($this->attachments, $attachment_ids_del);
             }
 
-            // Do not update meta when attachment_inserting with an empty array
-            // We may need the meta for later
-            if(!$attachment_inserting)
-            {
-                $this->set_meta($key, $attachment_ids);
-            }
+            $this->set_meta($key, $attachment_ids);
         }
 
         /*
@@ -290,7 +321,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 case 'taxonomy':
                     $this->set_terms($sys_key, $value);
                     break;
+                case 'file':
                 case 'attachment':
+                case 'attachment_action':
                     $this->set_attachments($sys_key, $value);
                     break;
             }
@@ -566,6 +599,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 case 'taxonomy':
                     return $this->get_terms($sys_key, $default, $single);
                 break;
+                case 'file':
                 case 'attachment':
                     return $this->get_attachments($sys_key, $default);
                 break;
