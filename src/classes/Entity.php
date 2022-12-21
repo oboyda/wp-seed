@@ -268,6 +268,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             {
                 switch($attachment_action_type)
                 {
+                    case 'order':
                     case 'reorder':
                         $attachment_ids_parent = $this->get_attachments($attachment_key, []);
                         $attachment_ids = array_unique(array_merge($attachment_ids, $attachment_ids_parent));
