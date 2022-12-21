@@ -234,7 +234,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 }
             }
 
-            if($set_meta)
+            if($set_meta && empty($this->attachments_insert[$key]))
             {
                 $this->set_meta($key, $key_attachment_ids);
             }
@@ -475,7 +475,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $attachments = wp_parse_id_list($this->get_meta($key));
 
-            return (isset($default) && empty($attachments)) ? $default : $attachments;
+            return (empty($attachments) && isset($default)) ? $default : $attachments;
         }
 
         /*

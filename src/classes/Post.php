@@ -286,35 +286,37 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 $attachments_set = false;
                 foreach($this->attachments_insert as $key => $attachments)
                 {
-                    $attachments_ids = [];
+                    // Delete old attachments before updating attachments meta
+                    $attachment_ids_old = $this->get_meta($key);
+                    // $attachment_ids_old_deleted = [];
+                    if(!empty($attachment_ids_old))
+                    {
+                        foreach($attachment_ids_old as $attachments_id_old)
+                        {
+                            $attachment_old = new Attachment($attachments_id_old);
+                            if($attachment_old->get_parent_id() === $this->get_id())
+                            {
+                                // $attachment_ids_old_deleted[] = $attachment_old->get_id();
+                                $attachment_old->delete(true);
+                            }
+                        }
+                    }
+
+                    $attachment_ids = [];
                     foreach($attachments as $attachment)
                     {
                         $attachment->set_data('post_parent', $this->get_id());
                         $attachment->persist();
                         if($attachment->get_id())
                         {
-                            $attachments_ids[] = $attachment->get_id();
+                            $attachment_ids[] = $attachment->get_id();
                         }
                     }
 
-                    if(!empty($attachments_ids))
+                    if(!empty($attachment_ids))
                     {
-                        // Delete old attachments before updating attachments meta
-                        $attachments_ids_old = $this->get_attachments($key);
-                        if(!empty($attachments_ids_old))
-                        {
-                            foreach($attachments_ids_old as $attachments_id_old)
-                            {
-                                $attachment_old = new Attachment($attachments_id_old);
-                                if($attachment_old->get_parent_id() === $this->get_id())
-                                {
-                                    $attachment_old->delete(true);
-                                }
-                            }
-                        }
-
                         // Update attachments meta
-                        $this->set_attachments($key, $attachments_ids);
+                        $this->set_attachments($key, $attachment_ids);
                         $attachments_set = true;
                     }
                 }
