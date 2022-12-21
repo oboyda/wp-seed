@@ -62,7 +62,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             $this->set_data('post_parent', $id);
         }
 
-        public function set_file_data($data)
+        public function set_file_data($file_data)
         {
             $this->file_data = $file_data;
         }

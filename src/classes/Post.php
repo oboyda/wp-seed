@@ -188,7 +188,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         @return void
         --------------------------------------------------
         */
-        public function persist($reconst=false)
+        public function persist()
         {
             $updating = !$this->get_id();
 
