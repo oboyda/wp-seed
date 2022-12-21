@@ -70,6 +70,18 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 
         /*
         --------------------------------------------------
+        Get parent_id
+
+        @return bool
+        --------------------------------------------------
+        */
+        public function get_parent_id()
+        {
+            return $this->parent_id;
+        }
+
+        /*
+        --------------------------------------------------
         Get Attachment file name
 
         @param string $size

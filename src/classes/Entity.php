@@ -18,7 +18,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         protected $terms;
 
         protected $attachments;
-        protected $attachments_pending;
+        protected $attachments_insert;
         
         /*
         --------------------------------------------------
@@ -139,6 +139,104 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             if(!in_array('data', $this->prop_types)) return;
 
             // Should be implemented by the child class
+        }
+
+        /*
+        --------------------------------------------------
+        Set terms
+
+        @param string $taxonomy
+        @param array $terms Array of terms ids
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_terms($taxonomy, $terms)
+        {
+            if(!in_array('term', $this->prop_types))
+            {
+                return;
+            }
+
+            if(!is_array($terms))
+            {
+                $terms = [$terms];
+            }
+
+            if(!isset($this->terms[$taxonomy]))
+            {
+                $this->terms[$taxonomy] = [];
+            }
+
+            if(!empty($terms))
+            {
+                foreach($terms as $term)
+                {
+                    if(is_a($term, 'WP_Term'))
+                    {
+                        $this->terms[$taxonomy][] = $term->term_id;
+                    }
+                    else{
+                        $this->terms[$taxonomy][] = (int)$term;
+                    }
+                }
+            }
+        }
+
+        /*
+        --------------------------------------------------
+        Set $this->attachments;
+
+        @param string $key
+        @param array $attachments Array of attachments ids or Attachment instances
+
+        @return void
+        --------------------------------------------------
+        */
+        public function set_attachments($key, $attachments, $set_meta=true)
+        {
+            if(!in_array('attachment', $this->prop_types))
+            {
+                return;
+            }
+
+            if(!is_array($attachments))
+            {
+                $attachments = [$attachments];
+            }
+
+            $key_attachment_ids = [];
+
+            if(!empty($attachments))
+            {
+                $this->attachments_insert[$key] = [];
+
+                foreach($attachments as $attachment)
+                {
+                    if(is_array($attachment) && isset($attachment['name']))
+                    {
+                        $this->attachments_insert[$key][] = new Attachment(0, [], $this->get_id(), $attachment);
+                    }
+                    elseif(is_a($attachment, '\WPSEED\Attachment'))
+                    {
+                        $key_attachment_ids[] = $attachment->get_id();
+                    }
+                    else
+                    {
+                        $key_attachment_ids[] = (int)$attachment;
+                    }
+                }
+
+                if(!empty($key_attachment_ids))
+                {
+                    $this->attachments = array_unique(array_merge($this->attachments, $key_attachment_ids));
+                }
+            }
+
+            if($set_meta)
+            {
+                $this->set_meta($key, $key_attachment_ids);
+            }
         }
 
         /*

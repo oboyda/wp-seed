@@ -113,7 +113,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             if(!in_array('attachment', $this->prop_types)) return;
             
             $this->attachments = [];
-            $this->attachments_pending = [];
+            $this->attachments_insert = [];
             
             if(!$this->id) return;
 
@@ -183,104 +183,6 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
         /*
         --------------------------------------------------
-        Set terms
-
-        @param string $taxonomy
-        @param array $terms Array of terms ids
-
-        @return void
-        --------------------------------------------------
-        */
-        public function set_terms($taxonomy, $terms)
-        {
-            if(!in_array('term', $this->prop_types))
-            {
-                return;
-            }
-
-            if(!is_array($terms))
-            {
-                $terms = [$terms];
-            }
-
-            if(!isset($this->terms[$taxonomy]))
-            {
-                $this->terms[$taxonomy] = [];
-            }
-
-            if(!empty($terms))
-            {
-                foreach($terms as $term)
-                {
-                    if(is_a($term, 'WP_Term'))
-                    {
-                        $this->terms[$taxonomy][] = $term->term_id;
-                    }
-                    else{
-                        $this->terms[$taxonomy][] = (int)$term;
-                    }
-                }
-            }
-        }
-
-        /*
-        --------------------------------------------------
-        Set $this->attachments;
-
-        @param string $key
-        @param array $attachments Array of attachments ids or Attachment instances
-
-        @return void
-        --------------------------------------------------
-        */
-        public function set_attachments($key, $attachments, $set_meta=true)
-        {
-            if(!in_array('attachment', $this->prop_types))
-            {
-                return;
-            }
-
-            if(!is_array($attachments))
-            {
-                $attachments = [$attachments];
-            }
-
-            $key_attachment_ids = [];
-
-            if(!empty($attachments))
-            {
-                $this->attachments_pending[$key] = [];
-
-                foreach($attachments as $attachment)
-                {
-                    if(is_array($attachment) && isset($attachment['name']))
-                    {
-                        $this->attachments_pending[$key][] = new Attachment(0, [], $this->get_id(), $attachment);
-                    }
-                    elseif(is_a($attachment, '\WPSEED\Attachment'))
-                    {
-                        $key_attachment_ids[] = $attachment->get_id();
-                    }
-                    else
-                    {
-                        $key_attachment_ids[] = (int)$attachment;
-                    }
-                }
-
-                if(!empty($key_attachment_ids))
-                {
-                    $this->attachments = array_unique(array_merge($this->attachments, $key_attachment_ids));
-                }
-            }
-
-            if($set_meta)
-            {
-                $this->set_meta($key, $key_attachment_ids);
-            }
-        }
-
-        /*
-        --------------------------------------------------
         Save object's data to the database from $this->data, $this->meta, $this->terms
 
         @return void
@@ -335,10 +237,10 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             }
 
             // Save attachments
-            if($this->get_id() && !empty($this->attachments_pending))
+            if($this->get_id() && !empty($this->attachments_insert))
             {
                 $attachments_set = false;
-                foreach($this->attachments_pending as $key => $attachments)
+                foreach($this->attachments_insert as $key => $attachments)
                 {
                     $attachments_ids = [];
                     foreach($attachments as $attachment)
@@ -353,13 +255,28 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
                     if(!empty($attachments_ids))
                     {
+                        // Delete old attachments before updating attachments meta
+                        $attachments_ids_old = $this->get_attachments($key);
+                        if(!empty($attachments_ids_old))
+                        {
+                            foreach($attachments_ids_old as $attachments_id_old)
+                            {
+                                $attachment_old = new Attachment($attachments_id_old);
+                                if($attachment_old->get_parent_id() === $this->get_id())
+                                {
+                                    $attachment_old->delete(true);
+                                }
+                            }
+                        }
+
+                        // Update attachments meta
                         $this->set_attachments($key, $attachments_ids);
                         $attachments_set = true;
                     }
                 }
                 if($attachments_set)
                 {
-                    $this->attachments_pending = null;
+                    $this->attachments_insert = null;
                     $this->persist();
                 }
             }
