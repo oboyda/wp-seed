@@ -210,7 +210,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             $attachment_key = $this->get_props_config($key, 'attachment_action_parent', $key);
 
             $attachment_ids = [];
-            $attachment_ids_del = [];
+            $attachment_ids_del = ($this->get_props_config($attachment_key, 'attachment_insert_mode', 'add') === 'replace') ? $this->get_meta($attachment_key, []) : [];
 
             $attachment_action_type = $this->get_props_config($key, 'attachment_action_type', $this->get_props_config($attachment_key, 'attachment_insert_mode', 'add'));
 
@@ -253,9 +253,6 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                     case 'delete':
                         $attachment_ids_del = $attachment_ids;
                         $attachment_ids = [];
-                    break;
-                    case 'replace':
-                        $attachment_ids_del = $this->get_meta($attachment_key, []);
                     break;
                 }
             }
