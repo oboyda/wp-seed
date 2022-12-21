@@ -272,67 +272,85 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 do_action('wpseed_post_inserted', $id, $this);
             }
 
-            // Save terms
-            if(!empty($this->terms) && $this->get_id())
+            $this->persist_terms();
+
+            $this->persist_attachments();
+
+            // if(!$updating)
+            // {
+            //     $this->__construct(
+            //         $this->get_id(), 
+            //         $this->props_config
+            //     );
+            // }
+
+            do_action('wpseed_post_persisted', $this->get_id(), $this);
+
+            return true;
+        }
+
+        protected function persist_terms()
+        {
+            if(!($this->get_id() && in_array('term', $this->prop_types)))
+            {
+                return;
+            }
+
+            if(!empty($this->terms))
             {
                 foreach($this->terms as $taxonomy => $terms)
                 {
                     wp_set_object_terms($this->get_id(), $terms, $taxonomy, false);
                 }
             }
+        }
 
-            // Manage attachments
-            if($this->get_id())
+        protected function persist_attachments()
+        {
+            if(!($this->get_id() && in_array('attachment', $this->prop_types)))
             {
-                if(!empty($this->attachments_delete))
+                return;
+            }
+
+            if(!empty($this->attachments_delete))
+            {
+                foreach($this->attachments_delete as $key => $attachments)
                 {
-                    foreach($this->attachments_delete as $key => $attachments)
+                    foreach($attachments as $attachment)
                     {
-                        foreach($attachments as $attachment)
+                        if($attachment->get_parent_id() === $this->get_id())
                         {
-                            if($attachment->get_parent_id() === $this->get_id())
-                            {
-                                $attachment->delete(true);
-                            }
+                            $attachment->delete(true);
+                        }
+                    }
+                }
+
+                $this->attachments_delete = [];
+            }
+
+            if(!empty($this->attachments_insert))
+            {
+                foreach($this->attachments_insert as $key => $attachments)
+                {
+                    $attachment_ids = [];
+                    foreach($attachments as $attachment)
+                    {
+                        $attachment->set_data('post_parent', $this->get_id());
+                        $attachment->persist();
+                        if($attachment->get_id())
+                        {
+                            $attachment_ids[] = $attachment->get_id();
                         }
                     }
 
-                    $this->attachments_delete = null;
+                    $this->set_attachments($key, $attachment_ids);
+
+                    // We need to persist again in order to update the new attachment meta
+                    $this->persist();
                 }
 
-                if(!empty($this->attachments_insert))
-                {
-                    foreach($this->attachments_insert as $key => $attachments)
-                    {
-                        $attachment_ids = [];
-                        foreach($attachments as $attachment)
-                        {
-                            $attachment->set_data('post_parent', $this->get_id());
-                            $attachment->persist();
-                            if($attachment->get_id())
-                            {
-                                $attachment_ids[] = $attachment->get_id();
-                            }
-                        }
-
-                        $this->set_attachments($key, $attachment_ids);
-                    }
-
-                    $this->attachments_insert = null;
-                }
+                $this->attachments_insert = [];
             }
-
-            if(!$updating)
-            {
-                $this->__construct(
-                    $this->get_id(), 
-                    $this->props_config
-                );
-            }
-
-            do_action('wpseed_post_persisted', $this->get_id(), $this);
-
-            return true;
         }
 
         /*

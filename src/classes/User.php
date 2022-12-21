@@ -194,13 +194,13 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 }
             }
 
-            if(!$updating)
-            {
-                $this->__construct(
-                    $this->get_id(), 
-                    $this->props_config
-                );
-            }
+            // if(!$updating)
+            // {
+            //     $this->__construct(
+            //         $this->get_id(), 
+            //         $this->props_config
+            //     );
+            // }
 
             return true;
         }

@@ -210,15 +210,15 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 }
             }
 
-            if(!$updating)
-            {
-                $this->__construct(
-                    $id, 
-                    $this->props_config,
-                    $this->parent_id,
-                    []
-                );
-            }
+            // if(!$updating)
+            // {
+            //     $this->__construct(
+            //         $id, 
+            //         $this->props_config,
+            //         $this->parent_id,
+            //         []
+            //     );
+            // }
         }
     
         /*
