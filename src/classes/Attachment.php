@@ -50,7 +50,8 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         {
             $this->metadata = $this->id ? wp_get_attachment_metadata($this->id) : [];
 
-            $upload_dir = wp_get_upload_dir();
+            // $upload_dir = wp_get_upload_dir();
+            $upload_dir = wp_upload_dir();
 
             if(isset($upload_dir['url'])) $this->base_url = $upload_dir['url'];
             if(isset($upload_dir['path'])) $this->base_dir = $upload_dir['path'];
