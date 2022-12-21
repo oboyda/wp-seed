@@ -266,7 +266,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $attachment_ids_del = array_diff($attachment_ids_del, $attachment_ids);
             }
 
-            // Delete attachments
+            // Prepare Attachment types for later deleting
             if(!empty($attachment_ids_del))
             {
                 $this->attachments_delete[$key] = [];
@@ -277,6 +277,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 }
             }
 
+            // If it is insering we are done at this point
             if(!$attachment_inserting)
             {
                 return;
