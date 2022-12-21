@@ -356,19 +356,6 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         
         /*
         --------------------------------------------------
-        Get post_type from $this->data
-
-        @return int
-        --------------------------------------------------
-        */
-        public function get_type()
-        {
-            // return $this->get_data('post_type');
-            return $this->post_type;
-        }
-
-        /*
-        --------------------------------------------------
         Get data type properties
 
         @param string|null $key as in WP_Post object

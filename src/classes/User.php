@@ -50,7 +50,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             $this->data = [];
             $this->role = '';
 
-            $_user = is_int($user) ? get_userdata($user) : $user;
+            $_user = (is_int($user) && $user) ? get_userdata($user) : $user;
 
             if(is_a($_user, 'WP_User'))
             {

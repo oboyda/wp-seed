@@ -50,7 +50,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             $this->data = [];
             $this->permalink = '';
 
-            $_post = is_int($post) ? get_post($post) : $post;
+            $_post = (is_int($post) && $post) ? get_post($post) : $post;
 
             if(is_a($_post, 'WP_Post'))
             {
@@ -194,6 +194,23 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             {
                 $this->data[$key] = $value;
             }
+        }
+
+        /*
+        --------------------------------------------------
+        Get post_type
+
+        @return string
+        --------------------------------------------------
+        */
+        public function get_post_type()
+        {
+            // return $this->get_data('post_type');
+            return $this->post_type;
+        }
+        public function get_type()
+        {
+            return $this->get_post_type();
         }
 
         /*
