@@ -78,6 +78,8 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
                     $value = ($validate == 'file') ? $this->getFile($key) : $this->get($key, $validate);
 
+                    $skip_add_field = false;
+
                     /* 
                     Add to errors if required and empty
                     -------------------------
@@ -106,6 +108,10 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
                             if(empty($value))
                             {
+                                // Do not create index in $result['fields'] 
+                                // as an empty array to prevent deleting attachments
+                                $skip_add_field = true;
+
                                 break;
                             }
 
@@ -145,10 +151,10 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                             break;
                     }
 
-                    // if(!in_array($key, $result['error_fields']))
-                    // {
+                    if(!$skip_add_field)
+                    {
                         $result['fields'][$key] = $value;
-                    // }
+                    }
                 }
             }
 

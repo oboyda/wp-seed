@@ -324,8 +324,6 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                         }
                     }
                 }
-
-                $this->attachments_delete = [];
             }
 
             if(!empty($this->attachments_insert))
@@ -346,12 +344,14 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     $this->set_attachments($key, $attachment_ids);
 
                     // We need to persist again in order to update the new attachment meta
-                    // $this->persist();
+                    // Do not persist to avoid looping
                     update_post_meta($this->get_id(), $key, $attachment_ids);
                 }
 
-                $this->attachments_insert = [];
             }
+
+            $this->attachments_delete = [];
+            $this->attachments_insert = [];
         }
 
         /*

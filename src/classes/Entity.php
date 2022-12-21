@@ -207,6 +207,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $attachments = [$attachments];
             }
 
+            $attachment_inserting = false;
             $attachment_ids = [];
             $attachment_ids_del = ($this->get_props_config($key, 'insert_policy') === 'replace') ? $this->get_meta($key, []) : [];
 
@@ -238,6 +239,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
                     $this->attachments = array_unique(array_merge($this->attachments, $attachment_ids));
                 }
+
+                $attachment_inserting = !empty($this->attachments_insert[$key]);
             }
 
             if(!empty($attachment_ids_del))
@@ -252,7 +255,10 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $this->attachments = array_diff($this->attachments, $attachment_ids_del);
             }
 
-            $this->set_meta($key, $attachment_ids);
+            if(!$attachment_inserting)
+            {
+                $this->set_meta($key, $attachment_ids);
+            }
         }
 
         /*
