@@ -207,13 +207,14 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $attachments = [$attachments];
             }
 
-            $attachment_inserting = false;
+            $attachment_key = $this->get_props_config($key, 'attachment_action_parent', $key);
 
             $attachment_ids = [];
             $attachment_ids_del = [];
 
-            $attachment_key = $this->get_props_config($key, 'attachment_action_parent', $key);
-            $attachment_action_type = $this->get_props_config($key, 'attachment_action_type', $this->get_props_config($key, 'attachment_insert_mode'));
+            $attachment_action_type = $this->get_props_config($key, 'attachment_action_type', $this->get_props_config($attachment_key, 'attachment_insert_mode', 'add'));
+
+            $attachment_inserting = false;
 
             // $attachments can be of different types. Treat them differently
             if(!empty($attachments))
@@ -238,11 +239,6 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 }
 
                 $attachment_inserting = !empty($this->attachments_insert[$attachment_key]);
-            }
-
-            if(!$attachment_inserting)
-            {
-                return;
             }
 
             // When attachment dynamic fields are defined as delete and reorder
@@ -279,6 +275,11 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 {
                     $this->attachments_delete[$key][] = new Attachment($attachment_id_del);
                 }
+            }
+
+            if(!$attachment_inserting)
+            {
+                return;
             }
 
             if(!empty($attachment_ids))
