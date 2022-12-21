@@ -233,7 +233,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         @return void
         --------------------------------------------------
         */
-        public function persist()
+        public function persist($reconstruct=false)
         {
             $updating = (bool)$this->get_id();
 
@@ -276,13 +276,13 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
             $this->persist_attachments();
 
-            // if(!$updating)
-            // {
-            //     $this->__construct(
-            //         $this->get_id(), 
-            //         $this->props_config
-            //     );
-            // }
+            if($reconstruct)
+            {
+                $this->__construct(
+                    $this->get_id(), 
+                    $this->props_config
+                );
+            }
 
             do_action('wpseed_post_persisted', $this->get_id(), $this);
 

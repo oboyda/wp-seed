@@ -144,7 +144,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         @return void
         --------------------------------------------------
         */
-        public function persist()
+        public function persist($reconstruct=false)
         {
             $updating = (bool)$this->get_id();
             
@@ -210,15 +210,15 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 }
             }
 
-            // if(!$updating)
-            // {
-            //     $this->__construct(
-            //         $id, 
-            //         $this->props_config,
-            //         $this->parent_id,
-            //         []
-            //     );
-            // }
+            if($reconstruct)
+            {
+                $this->__construct(
+                    $id, 
+                    $this->props_config,
+                    $this->parent_id,
+                    []
+                );
+            }
         }
     
         /*
