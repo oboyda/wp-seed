@@ -54,13 +54,12 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
             if(is_a($_post, 'WP_Post'))
             {
-                $this->id = $_post->ID;
-                if(!isset($this->post_type))
-                {
-                    $this->post_type = $_post->post_type;
-                }
                 $this->data = (array)$_post;
-                $this->permalink = get_permalink($this->id);
+
+                $this->set_id($_post->ID);
+                $this->set_post_type($_post->post_type);
+                $this->set_parent_id($_post->post_parent);
+                $this->set_permalink();
             }
         }
 
@@ -134,6 +133,22 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             $this->set_data('post_type', $post_type);
         }
 
+        public function set_parent_id($id)
+        {
+            $this->parent_id = $id;
+            $this->set_data('post_parent', $id);
+        }
+
+        public function set_permalink($permalink=null)
+        {
+            if(!isset($permalink) && $this->get_id())
+            {
+                $permalink = get_permalink($this->get_id());
+            }
+
+            $this->permalink = $permalink;
+        }
+
         /*
         --------------------------------------------------
         Set data type properties. 
@@ -179,6 +194,18 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             {
                 $this->data[$key] = $value;
             }
+        }
+
+        /*
+        --------------------------------------------------
+        Get parent_id
+
+        @return bool
+        --------------------------------------------------
+        */
+        public function get_parent_id()
+        {
+            return $this->parent_id;
         }
 
         /*

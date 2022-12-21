@@ -6,7 +6,6 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 {
     class Attachment extends Post
     {
-        private $parent_id;
         private $file_data;
         private $metadata;
         private $base_url;
@@ -35,9 +34,9 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             
             $this->set_parent_id($parent_id);
             $this->set_file_data($file_data);
-            
+
             parent::__construct($post, $props_config);
-            
+
             $this->init_metadata();
         }
 
@@ -57,27 +56,9 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             if(isset($upload_dir['path'])) $this->base_dir = $upload_dir['path'];
         }
 
-        public function set_parent_id($id)
-        {
-            $this->parent_id = $id;
-            $this->set_data('post_parent', $id);
-        }
-
         public function set_file_data($file_data)
         {
             $this->file_data = $file_data;
-        }
-
-        /*
-        --------------------------------------------------
-        Get parent_id
-
-        @return bool
-        --------------------------------------------------
-        */
-        public function get_parent_id()
-        {
-            return $this->parent_id;
         }
 
         /*

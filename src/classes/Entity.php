@@ -8,6 +8,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
     {
         protected $id;
         protected $post_type;
+        protected $parent_id;
         protected $permalink;
 
         protected $prop_types;
