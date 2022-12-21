@@ -324,6 +324,8 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                         }
                     }
                 }
+
+                $this->attachments_delete = [];
             }
 
             if(!empty($this->attachments_insert))
@@ -353,10 +355,8 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     update_post_meta($this->get_id(), $key, $attachment_ids);
                 }
 
+                $this->attachments_insert = [];
             }
-
-            $this->attachments_delete = [];
-            $this->attachments_insert = [];
         }
 
         /*
