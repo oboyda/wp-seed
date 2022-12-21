@@ -341,7 +341,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                         }
                     }
 
-                    if($this->get_props_config($key, 'insert_policy') === 'add')
+                    if($this->get_props_config($key, 'insert_policy', 'add') === 'add')
                     {
                         $attachment_ids = array_merge($attachment_ids, $this->get_meta($key, []));
                     }
