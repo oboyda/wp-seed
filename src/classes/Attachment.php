@@ -153,16 +153,24 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         */
         public function persist()
         {
-            $id = 0;
+            $updating = (bool)$this->get_id();
             
-            if($this->id && !empty($this->data))
+            if($updating)
             {
-                $data = $this->data;
+                if(!$this->get_data('post_parent') && $this->parent_id)
+                {
+                    $this->set_data('post_parent', $this->parent_id);
+                }
 
-                $data['post_parent'] = $this->parent_id;
-                $data['meta_input'] = $this->get_meta(null, null, true);
-
+                $data = array_merge($this->get_data(), [
+                    'meta_input' => $this->get_meta(null, null, true)
+                ]);
+    
                 $id = wp_update_post($data);
+                if(is_wp_error($id))
+                {
+                    return false;
+                }
             }
             elseif(!empty($this->file_data))
             {
@@ -191,29 +199,33 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                     //$this->set_data('post_content', '');
                     $this->set_data('post_status', 'inherit');
 
-                    $data = $this->get_data();
-                    $data['meta_input'] = $this->get_meta(null, null, true);
+                    $data = array_merge($this->get_data(), [
+                        'meta_input' => $this->get_meta(null, null, true)
+                    ]);
                     
                     $id = wp_insert_attachment($data, $save_path, $this->parent_id);
-                }
-                
-                if($id)
-                {
+                    if(is_wp_error($id))
+                    {
+                        return false;
+                    }
+    
+                    $this->set_id((int)$id);
+
                     //require_once(ABSPATH . 'wp-admin/includes/image.php');
-                    $metadata = wp_generate_attachment_metadata($id, $save_path);
-                    wp_update_attachment_metadata($id, $metadata);
+                    $metadata = wp_generate_attachment_metadata($this->get_id(), $save_path);
+                    wp_update_attachment_metadata($this->get_id(), $metadata);
                 }
             }
 
-            // if($id !== $this->id)
-            // {
-            //     $this->__construct(
-            //         $id, 
-            //         $this->props_config,
-            //         $this->parent_id,
-            //         []
-            //     );
-            // }
+            if(!$updating)
+            {
+                $this->__construct(
+                    $id, 
+                    $this->props_config,
+                    $this->parent_id,
+                    []
+                );
+            }
         }
     
         /*
