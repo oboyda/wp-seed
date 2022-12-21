@@ -190,7 +190,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         */
         public function persist()
         {
-            $updating = !$this->get_id();
+            $updating = (bool)$this->get_id();
 
             if(!$this->get_data('post_type') && isset($this->post_type))
             {

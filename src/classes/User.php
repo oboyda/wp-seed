@@ -156,7 +156,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function persist()
         {
-            $updating = !$this->get_id();
+            $updating = (bool)$this->get_id();
 
             if(!$this->get_data('user_login'))
             {
