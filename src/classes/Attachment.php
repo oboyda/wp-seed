@@ -31,15 +31,14 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         */
         public function __construct($post=null, $props_config=[], $parent_id=0, $file_data=[])
         {
-            $this->_set_prop_types(['data', 'meta']);
+            $this->set_prop_types(['data', 'meta']);
             
-            $this->parent_id = $parent_id;
+            $this->set_parent_id($parent_id);
+            $this->set_file_data($file_data);
             
             parent::__construct($post, $props_config);
             
-            $this->_set_metadata();
-            
-            $this->file_data = $file_data;
+            $this->init_metadata();
         }
 
         /*
@@ -47,7 +46,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         Init & setter methods
         --------------------------------------------------
         */
-        protected function _set_metadata()
+        protected function init_metadata()
         {
             $this->metadata = $this->id ? wp_get_attachment_metadata($this->id) : [];
 
@@ -55,6 +54,17 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 
             if(isset($upload_dir['url'])) $this->base_url = $upload_dir['url'];
             if(isset($upload_dir['path'])) $this->base_dir = $upload_dir['path'];
+        }
+
+        public function set_parent_id($id)
+        {
+            $this->parent_id = $id;
+            $this->set_data('post_parent', $id);
+        }
+
+        public function set_file_data($data)
+        {
+            $this->file_data = $file_data;
         }
 
         /*
@@ -194,15 +204,15 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 }
             }
 
-            if($id !== $this->id)
-            {
-                $this->__construct(
-                    $id, 
-                    $this->props_config,
-                    $this->parent_id,
-                    []
-                );
-            }
+            // if($id !== $this->id)
+            // {
+            //     $this->__construct(
+            //         $id, 
+            //         $this->props_config,
+            //         $this->parent_id,
+            //         []
+            //     );
+            // }
         }
     
         /*

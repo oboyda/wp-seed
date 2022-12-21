@@ -18,6 +18,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         protected $terms;
 
         protected $attachments;
+        protected $attachments_pending;
         
         /*
         --------------------------------------------------
@@ -41,10 +42,10 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             if(!isset($this->prop_types))
             {
-                $this->_set_prop_types(['data', 'meta']);
+                $this->set_prop_types(['data', 'meta']);
             }
 
-            $this->_set_props_config($props_config);
+            $this->set_props_config($props_config);
         }
         
         /*
@@ -53,12 +54,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         --------------------------------------------------
         */
         
-        protected function _set_prop_types($prop_types)
-        {
-            $this->prop_types = $prop_types;
-        }
-
-        protected function _set_props_config($props_config)
+        protected function set_props_config($props_config)
         {
             $this->props_config = [];
             
@@ -71,6 +67,17 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                     'required' => false
                 ]);
             }
+        }
+
+        protected function set_prop_types($prop_types)
+        {
+            $this->prop_types = $prop_types;
+        }
+
+        public function set_id($id)
+        {
+            $this->id = $id;
+            $this->set_data('ID', $id);
         }
 
         /*
@@ -200,9 +207,15 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             if(!empty($attachments))
             {
+                $this->attachments_pending = [];
+
                 foreach($attachments as $attachment)
                 {
-                    if(is_a($attachment, '\WPSEED\Attachment'))
+                    if(is_array($attachment) && isset($attachment['name']))
+                    {
+                        $this->attachments_pending[] = new Attachment(0, [], $this->get_id(), $attachment);
+                    }
+                    elseif(is_a($attachment, '\WPSEED\Attachment'))
                     {
                         $this->attachments[] = $attachment->get_id();
                     }

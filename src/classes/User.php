@@ -28,12 +28,12 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function __construct($user=null, $props_config=[])
         {
-            $this->_set_prop_types(['data', 'meta']);
+            $this->set_prop_types(['data', 'meta']);
 
             parent::__construct($props_config);
 
-            $this->_set_data($user);
-            $this->_set_meta();
+            $this->init_data($user);
+            $this->init_meta();
         }
         
         /*
@@ -42,7 +42,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         --------------------------------------------------
         */
         
-        protected function _set_data($user=null)
+        protected function init_data($user=null)
         {
             if(!in_array('data', $this->prop_types)) return;
 
@@ -60,7 +60,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             }
         }
 
-        protected function _set_meta()
+        protected function init_meta()
         {
             if(!in_array('meta', $this->prop_types)) return;
             
@@ -156,6 +156,8 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function persist()
         {
+            $updating = !$this->get_id();
+
             if(!$this->get_data('user_login'))
             {
                 $this->set_data('user_login', $this->get_data('user_email'));
@@ -170,17 +172,28 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 'meta_input' => $this->get_meta(null, null, true)
             ]);
 
-            $id = wp_insert_user($data);
-
-            if(is_wp_error($id))
+            if($updating)
             {
-                return false;
+                $id = wp_update_user($data);
+                if(is_wp_error($id))
+                {
+                    return false;
+                }
+
+                $this->set_id((int)$id);
+            }
+            else{
+                $id = wp_insert_user($data);
+                if(is_wp_error($id))
+                {
+                    return false;
+                }
             }
 
-            if($id !== $this->get_id())
+            if(!$updating)
             {
                 $this->__construct(
-                    $id, 
+                    $this->get_id(), 
                     $this->props_config
                 );
             }

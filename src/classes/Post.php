@@ -26,14 +26,14 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         */
         public function __construct($post=null, $props_config=[])
         {
-            $this->_set_prop_types(['data', 'meta', 'term', 'attachment']);
+            $this->set_prop_types(['data', 'meta', 'term', 'attachment']);
 
             parent::__construct($props_config);
 
-            $this->_set_data($post);
-            $this->_set_meta();
-            $this->_set_terms();
-            $this->_set_attachments();
+            $this->init_data($post);
+            $this->init_meta();
+            $this->init_terms();
+            $this->init_attachments();
         }
 
         /*
@@ -42,7 +42,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         --------------------------------------------------
         */
         
-        protected function _set_data($post=null)
+        protected function init_data($post=null)
         {
             if(!in_array('data', $this->prop_types)) return;
 
@@ -64,7 +64,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             }
         }
 
-        protected function _set_meta()
+        protected function init_meta()
         {
             if(!in_array('meta', $this->prop_types)) return;
             
@@ -91,7 +91,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             }
         }
 
-        protected function _set_terms()
+        protected function init_terms()
         {
             if(!in_array('term', $this->prop_types)) return;
             
@@ -108,7 +108,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             }
         }
 
-        protected function _set_attachments()
+        protected function init_attachments()
         {
             if(!in_array('attachment', $this->prop_types)) return;
             
@@ -125,6 +125,12 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 'orderby' => 'menu_order',
                 'fields' => 'ids'
             ]);
+        }
+
+        public function set_post_type($post_type)
+        {
+            $this->post_type = $post_type;
+            $this->set_data('post_type', $post_type);
         }
 
         /*
@@ -181,9 +187,9 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         @return void
         --------------------------------------------------
         */
-        public function persist()
+        public function persist($reconst=false)
         {
-            $id = 0;
+            $updating = !$this->get_id();
 
             if(!$this->get_data('post_type') && isset($this->post_type))
             {
@@ -198,33 +204,78 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 'meta_input' => $this->get_meta(null, null, true)
             ]);
 
-            if(isset($data['ID']))
+            if($updating)
             {
-                $id = wp_insert_post($data);
-                do_action('wpseed_post_inserted', $id, $this);
+                $id = wp_update_post($data);
+                if(is_wp_error($id))
+                {
+                    return false;
+                }
+
+                $this->set_id((int)$id);
+
+                do_action('wpseed_post_updated', $this->get_id(), $this);
             }
             else{
-                $id = wp_update_post($data);
-                do_action('wpseed_post_updated', $id, $this);
+                $id = wp_insert_post($data);
+                if(is_wp_error($id))
+                {
+                    return false;
+                }
+
+                do_action('wpseed_post_inserted', $id, $this);
             }
 
-            if(!empty($this->terms) && $id)
+            // Save terms
+            if(!empty($this->terms) && $this->get_id())
             {
                 foreach($this->terms as $taxonomy => $terms)
                 {
-                    wp_set_object_terms($id, $terms, $taxonomy, false);
+                    wp_set_object_terms($this->get_id(), $terms, $taxonomy, false);
                 }
             }
 
-            if($id !== $this->id)
+            // Save attachments
+            if($this->get_id() && !empty($this->attachments_pending))
+            {
+                $attachments_set = false;
+                foreach($this->attachments_pending as $key => $attachments)
+                {
+                    $attachments_ids = [];
+                    foreach($attachments as $attachment)
+                    {
+                        $attachment->set_parent_id($this->get_id());
+                        $attachment->persist();
+                        if($attachment->get_id())
+                        {
+                            $attachments_ids[] = $attachment->get_id();
+                        }
+                    }
+
+                    if(!empty($attachments_ids))
+                    {
+                        $this->set_attachments($key, $attachments_ids);
+                        $attachments_set = true;
+                    }
+                }
+                if($attachments_set)
+                {
+                    $this->attachments_pending = null;
+                    $this->persist();
+                }
+            }
+
+            if(!$updating)
             {
                 $this->__construct(
-                    $id, 
+                    $this->get_id(), 
                     $this->props_config
                 );
             }
 
-            do_action('wpseed_post_persisted', $id, $this);
+            do_action('wpseed_post_persisted', $this->get_id(), $this);
+
+            return true;
         }
 
         /*
