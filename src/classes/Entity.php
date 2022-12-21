@@ -207,13 +207,13 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             if(!empty($attachments))
             {
-                $this->attachments_pending = [];
+                $this->attachments_pending[$key] = [];
 
                 foreach($attachments as $attachment)
                 {
                     if(is_array($attachment) && isset($attachment['name']))
                     {
-                        $this->attachments_pending[] = new Attachment(0, [], $this->get_id(), $attachment);
+                        $this->attachments_pending[$key][] = new Attachment(0, [], $this->get_id(), $attachment);
                     }
                     elseif(is_a($attachment, '\WPSEED\Attachment'))
                     {

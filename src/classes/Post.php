@@ -113,6 +113,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             if(!in_array('attachment', $this->prop_types)) return;
             
             $this->attachments = [];
+            $this->attachments_pending = [];
             
             if(!$this->id) return;
 
