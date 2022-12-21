@@ -341,6 +341,11 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                         }
                     }
 
+                    if($this->get_props_config($key, 'insert_policy') === 'add')
+                    {
+                        $attachment_ids = array_merge($attachment_ids, $this->get_meta($key, []));
+                    }
+
                     $this->set_attachments($key, $attachment_ids);
 
                     // We need to persist again in order to update the new attachment meta

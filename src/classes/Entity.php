@@ -255,6 +255,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $this->attachments = array_diff($this->attachments, $attachment_ids_del);
             }
 
+            // Do not update meta when attachment_inserting with an empty array
+            // We may need the meta for later
             if(!$attachment_inserting)
             {
                 $this->set_meta($key, $attachment_ids);
