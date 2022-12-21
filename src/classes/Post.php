@@ -244,7 +244,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     $attachments_ids = [];
                     foreach($attachments as $attachment)
                     {
-                        $attachment->set_parent_id($this->get_id());
+                        $attachment->set_data('post_parent', $this->get_id());
                         $attachment->persist();
                         if($attachment->get_id())
                         {
