@@ -65,7 +65,8 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             $result = [
                 'fields' => [],
                 'error_fields' => [],
-                'errors' => []
+                'errors' => [],
+                'fields_config' => $fields_config
             ];
 
             if(!empty($fields_config))
@@ -87,7 +88,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                             'attachment_action_type' => 'delete'
                         ];
 
-                        $dyn_key = isset($field_config['attachment_order_input']) ? $field_config['attachment_delete_input'] : $key . '_order';
+                        $dyn_key = isset($field_config['attachment_order_input']) ? $field_config['attachment_order_input'] : $key . '_order';
                         $_fields_config[$dyn_key] = [
                             'type' => 'attachment_action',
                             'validate' => 'integer',
@@ -183,6 +184,8 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                         $result['fields'][$key] = $value;
                     }
                 }
+
+                $result['fields_config'] = $_fields_config;
             }
 
             $result['error_fields'] = array_unique($result['error_fields']);
