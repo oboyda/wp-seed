@@ -113,6 +113,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             
             $this->attachments = [];
             $this->attachments_insert = [];
+            $this->attachments_delete = [];
             
             if(!$this->id) return;
 
@@ -281,57 +282,43 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
             }
 
             // Manage attachments
-            if($this->get_id() && !empty($this->attachments_insert))
+            if($this->get_id())
             {
-                $attachments_set = false;
-                foreach($this->attachments_insert as $key => $attachments)
+                if(!empty($this->attachments_delete))
                 {
-                    // Upload policy: add/replace
-                    $upload_policy = $this->get_props_config($key, 'upload_policy', 'add');
-
-                    // Delete old attachments before updating attachments meta
-                    if($upload_policy === 'replace')
+                    foreach($this->attachments_delete as $key => $attachments)
                     {
-                        $attachment_ids_del = $this->get_attachments($key);
-                        if(!empty($attachment_ids_del))
+                        foreach($attachments as $attachment)
                         {
-                            foreach($attachment_ids_del as $attachment_id_del)
+                            if($attachment->get_parent_id() === $this->get_id())
                             {
-                                $attachment_del = new Attachment($attachment_id_del);
-                                if($attachment_del->get_parent_id() === $this->get_id())
-                                {
-                                    $attachment_del->delete(true);
-                                }
+                                $attachment->delete(true);
                             }
                         }
                     }
 
-                    $attachment_ids = [];
-                    foreach($attachments as $attachment)
+                    $this->attachments_delete = null;
+                }
+
+                if(!empty($this->attachments_insert))
+                {
+                    foreach($this->attachments_insert as $key => $attachments)
                     {
-                        $attachment->set_data('post_parent', $this->get_id());
-                        $attachment->persist();
-                        if($attachment->get_id())
+                        $attachment_ids = [];
+                        foreach($attachments as $attachment)
                         {
-                            $attachment_ids[] = $attachment->get_id();
+                            $attachment->set_data('post_parent', $this->get_id());
+                            $attachment->persist();
+                            if($attachment->get_id())
+                            {
+                                $attachment_ids[] = $attachment->get_id();
+                            }
                         }
+
+                        $this->set_attachments($key, $attachment_ids);
                     }
 
-                    if(!empty($attachment_ids))
-                    {
-                        // Update attachments meta
-                        if($upload_policy === 'add')
-                        {
-                            $attachment_ids = array_merge($attachment_ids, $this->get_attachments($key));
-                        }
-                        $this->set_attachments($key, $attachment_ids);
-                        $attachments_set = true;
-                    }
-                }
-                if($attachments_set)
-                {
                     $this->attachments_insert = null;
-                    $this->persist();
                 }
             }
 
