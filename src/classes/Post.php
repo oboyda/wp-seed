@@ -346,7 +346,8 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     $this->set_attachments($key, $attachment_ids);
 
                     // We need to persist again in order to update the new attachment meta
-                    $this->persist();
+                    // $this->persist();
+                    update_post_meta($this->get_id(), $key, $attachment_ids);
                 }
 
                 $this->attachments_insert = [];
