@@ -280,24 +280,28 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 }
             }
 
-            // Save attachments
+            // Manage attachments
             if($this->get_id() && !empty($this->attachments_insert))
             {
                 $attachments_set = false;
                 foreach($this->attachments_insert as $key => $attachments)
                 {
+                    // Upload policy: add/replace
+                    $upload_policy = $this->get_props_config($key, 'upload_policy', 'add');
+
                     // Delete old attachments before updating attachments meta
-                    $attachment_ids_old = $this->get_meta($key);
-                    // $attachment_ids_old_deleted = [];
-                    if(!empty($attachment_ids_old))
+                    if($upload_policy === 'replace')
                     {
-                        foreach($attachment_ids_old as $attachments_id_old)
+                        $attachment_ids_del = $this->get_attachments($key);
+                        if(!empty($attachment_ids_del))
                         {
-                            $attachment_old = new Attachment($attachments_id_old);
-                            if($attachment_old->get_parent_id() === $this->get_id())
+                            foreach($attachment_ids_del as $attachment_id_del)
                             {
-                                // $attachment_ids_old_deleted[] = $attachment_old->get_id();
-                                $attachment_old->delete(true);
+                                $attachment_del = new Attachment($attachment_id_del);
+                                if($attachment_del->get_parent_id() === $this->get_id())
+                                {
+                                    $attachment_del->delete(true);
+                                }
                             }
                         }
                     }
@@ -316,6 +320,10 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     if(!empty($attachment_ids))
                     {
                         // Update attachments meta
+                        if($upload_policy === 'add')
+                        {
+                            $attachment_ids = array_merge($attachment_ids, $this->get_attachments($key));
+                        }
                         $this->set_attachments($key, $attachment_ids);
                         $attachments_set = true;
                     }

@@ -471,11 +471,14 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             if(!in_array('attachment', $this->prop_types)) return null;
 
-            if(!isset($key)) return $this->attachments;
+            if(isset($key))
+            {
+                $attachments = wp_parse_id_list($this->get_meta($key, []));
 
-            $attachments = wp_parse_id_list($this->get_meta($key));
+                return (empty($attachments) && isset($default)) ? $default : $attachments;
+            }
 
-            return (empty($attachments) && isset($default)) ? $default : $attachments;
+            return (empty($this->attachments) && isset($default)) ? $default : $this->attachments;
         }
 
         /*
@@ -499,12 +502,18 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return array|bool
         --------------------------------------------------
         */
-        public function get_props_config($key=null)
+        public function get_props_config($key=null, $data_key=null, $default=null)
         {
             if(isset($key))
             {
-                return isset($this->props_config[$key]) ? $this->props_config[$key] : [];
+                if(isset($data_key))
+                {
+                    return (isset($this->props_config[$key]) && isset($this->props_config[$key][$data_key])) ? $this->props_config[$key][$data_key] : $default;
+                }
+
+                return isset($this->props_config[$key]) ? $this->props_config[$key] : $default;
             }
+
             return $this->props_config;
         }
 

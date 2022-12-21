@@ -1,7 +1,7 @@
 {
     "name": "oboyda/wp-seed",
     "description": "Better entity classes for agile Wordpress development",
-    "version": "1.30.12",
+    "version": "1.30.13",
     "autoload": {
         "psr-4": {
             "WPSEED\\": "src/classes"
