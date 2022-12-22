@@ -674,12 +674,13 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 'post_type' => 'attachment',
                 'post_parent' => $this->id,
                 'post_status' => 'any',
-                'posts_per_page' => -1
+                'posts_per_page' => -1,
+                'fields' => 'ids'
             ]);
 
             foreach((array)$attachments as $attachment)
             {
-                wp_delete_post($attachment->ID, $force_delete);
+                wp_delete_post($attachment, $force_delete);
             }
         }
 
