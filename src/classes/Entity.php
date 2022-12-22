@@ -123,12 +123,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $prop_config = $this->get_props_config($key);
 
-            // if(!(isset($prop_config['type']) && in_array($prop_config['type'], ['meta', 'attachment'])))
-            // {
-            //     return;
-            // }
-
-            if(isset($prop_config['options']) && !isset($prop_config['options'][$value]))
+            if(!empty($prop_config['options']) && !isset($prop_config['options'][$value]))
             {
                 return;
             }
@@ -328,9 +323,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function set_prop($key, $value)
         {
-            $prop_config = $this->get_props_config($key);
-            $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
-            $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
+            $type = $this->get_props_config($key, 'type', 'data');
+            $sys_key = $this->get_props_config($key, 'sys_key', $key);
 
             switch($type)
             {
@@ -605,10 +599,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
         public function get_prop($key, $_default=null, $single=true)
         {
-            $prop_config = $this->get_props_config($key);
-            $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
-            $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
-            $default = isset($prop_config['default']) ? $prop_config['default'] : $_default;
+            $type = $this->get_props_config($key, 'type', 'data');
+            $sys_key = $this->get_props_config($key, 'sys_key', $key);
+            $default = $this->get_props_config($key, 'default', $_default);
 
             switch($type)
             {
@@ -688,8 +681,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             if(!isset($cast))
             {
-                $prop_config = isset($prop_name) ? $this->get_props_config($prop_name) : null;
-                $cast = (isset($prop_config) && isset($prop_config['cast'])) ? $prop_config['cast'] : null;
+                $cast = isset($prop_name) ? $this->get_props_config($prop_name, 'cast') : null;
             }
 
             if(isset($cast))
