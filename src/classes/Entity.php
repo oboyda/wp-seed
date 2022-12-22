@@ -680,7 +680,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             foreach((array)$attachments as $attachment)
             {
-                wp_delete_post($attachment, $force_delete);
+                wp_delete_attachment($attachment, $force_delete);
             }
         }
 
