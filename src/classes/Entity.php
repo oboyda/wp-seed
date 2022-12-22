@@ -670,23 +670,26 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             
             if(!$this->id) return;
             
-            $attachments = get_posts([
-                'post_type' => 'attachment',
-                'post_parent' => $this->id,
-                'post_status' => 'any',
-                'posts_per_page' => -1,
-                'fields' => 'ids'
-            ]);
+            // $attachments = get_posts([
+            //     'post_type' => 'attachment',
+            //     'post_parent' => $this->id,
+            //     'post_status' => 'any',
+            //     'posts_per_page' => -1,
+            //     'fields' => 'ids'
+            // ]);
 
             $deleted = [];
 
-            foreach((array)$attachments as $attachment)
+            // foreach((array)$attachments as $attachment)
+            foreach((array)$this->attachments as $attachment)
             {
                 if((bool)wp_delete_attachment($attachment, $force_delete))
                 {
                     $deleted[] = $attachment;
                 }
             }
+
+            $this->attachments = array_diff($this->attachments, $deleted);
 
             return $deleted;
         }
