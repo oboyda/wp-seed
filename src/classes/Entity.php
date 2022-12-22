@@ -64,23 +64,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             {
                 foreach($props_config as $key => $prop_config)
                 {
-                    $this->props_config[$key] = wp_parse_args($prop_config, [
-                        'sys_key' => $key,
-                        'type' => 'data',
-                        'label' => $key,
-                        'required' => false
-                    ]);
-
                     if(in_array($prop_config['type'], ['file', 'attachment']))
                     {
-                        $dyn_key = isset($prop_config['attachment_delete_input']) ? $prop_config['attachment_delete_input'] : $key . '_del';
-                        $this->props_config[$dyn_key] = [
-                            'type' => 'attachment_action',
-                            'validate' => 'integer',
-                            'attachment_action_parent' => $key,
-                            'attachment_action_type' => 'delete'
-                        ];
-
                         $dyn_key = isset($prop_config['attachment_order_input']) ? $prop_config['attachment_order_input'] : $key . '_order';
                         $this->props_config[$dyn_key] = [
                             'type' => 'attachment_action',
@@ -88,7 +73,22 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                             'attachment_action_parent' => $key,
                             'attachment_action_type' => 'order'
                         ];
+
+                        $dyn_key = isset($prop_config['attachment_delete_input']) ? $prop_config['attachment_delete_input'] : $key . '_del';
+                        $this->props_config[$dyn_key] = [
+                            'type' => 'attachment_action',
+                            'validate' => 'integer',
+                            'attachment_action_parent' => $key,
+                            'attachment_action_type' => 'delete'
+                        ];
                     }
+
+                    $this->props_config[$key] = wp_parse_args($prop_config, [
+                        'sys_key' => $key,
+                        'type' => 'data',
+                        'label' => $key,
+                        'required' => false
+                    ]);
                 }
             }
         }
