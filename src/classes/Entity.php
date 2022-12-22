@@ -666,7 +666,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return void
         --------------------------------------------------
         */
-        private function delete_attachments($force_delete=true){
+        public function delete_attachments($force_delete=true){
             
             if(!$this->id) return;
             
@@ -678,10 +678,17 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 'fields' => 'ids'
             ]);
 
+            $deleted = [];
+
             foreach((array)$attachments as $attachment)
             {
-                wp_delete_attachment($attachment, $force_delete);
+                if((bool)wp_delete_attachment($attachment, $force_delete))
+                {
+                    $deleted[] = $attachment;
+                }
             }
+
+            return $deleted;
         }
 
         /*
