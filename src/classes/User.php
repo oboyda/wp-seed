@@ -183,8 +183,6 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 {
                     return false;
                 }
-
-                $this->set_id((int)$id);
             }
             else{
                 $id = wp_insert_user($data);
@@ -192,6 +190,8 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 {
                     return false;
                 }
+
+                $this->set_id((int)$id);
             }
 
             if($reconstruct)

@@ -258,8 +258,6 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     return false;
                 }
 
-                $this->set_id((int)$id);
-
                 do_action('wpseed_post_updated', $this->get_id(), $this);
             }
             else{
@@ -269,7 +267,9 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                     return false;
                 }
 
-                do_action('wpseed_post_inserted', $id, $this);
+                $this->set_id((int)$id);
+
+                do_action('wpseed_post_inserted', $this->get_id(), $this);
             }
 
             $this->persist_terms();
