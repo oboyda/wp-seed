@@ -364,18 +364,18 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         Delete WP_Post
         
         @param bool $force_deleten Whether to mark as trashed or delete permanently
-        @param bool $delete_children Whether to delete children
+        @param bool $delete_attachments Whether to delete children
 
         @return void
         --------------------------------------------------
         */
-        public function delete($force_delete=true, $delete_children=false)
+        public function delete($force_delete=true, $delete_attachments=false)
         {
             if(!$this->id) return false;
             
-            if($delete_children)
+            if($delete_attachments)
             {
-                $this->delete_children($force_delete);
+                $this->delete_attachments($force_delete);
             }
             
             return wp_delete_post($this->id, $force_delete);

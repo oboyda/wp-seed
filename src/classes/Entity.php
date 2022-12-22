@@ -666,19 +666,20 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return void
         --------------------------------------------------
         */
-        private function delete_children($force_delete=true){
+        private function delete_attachments($force_delete=true){
             
             if(!$this->id) return;
             
-            $children_posts = get_posts([
+            $attachments = get_posts([
+                'post_type' => 'attachment',
                 'post_parent' => $this->id,
                 'post_status' => 'any',
                 'posts_per_page' => -1
             ]);
 
-            foreach((array)$children_posts as $post)
+            foreach((array)$attachments as $attachment)
             {
-                wp_delete_post($post->ID, $force_delete);
+                wp_delete_post($attachment->ID, $force_delete);
             }
         }
 

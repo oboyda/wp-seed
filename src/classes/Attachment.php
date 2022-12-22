@@ -230,7 +230,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         @return void
         --------------------------------------------------
         */
-        public function delete($force_delete=true, $delete_children=false){
+        public function delete($force_delete=true, $delete_attachments=false){
             
             if(!$this->id) return false;
             
