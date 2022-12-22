@@ -219,15 +219,20 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 return;
             }
 
+            // Ensure a legal array
+            if(is_array($attachments) && isset($attachments['name']))
+            {
+                $attachments = [$attachments];
+            }
+            elseif(!is_array($attachments))
+            {
+                $attachments = empty($attachments) ? [] : [$attachments];
+            }
+
             if($this->get_props_config($key, 'type') === 'attachment_action')
             {
                 $attachment_key = $this->get_props_config($key, 'attachment_action_parent', $key);
                 $attachment_action_type = $this->get_props_config($key, 'attachment_action_type');
-
-                if(!is_array($attachments))
-                {
-                    $attachments = [$attachments];
-                }
 
                 $attachments = wp_parse_id_list($attachments);
 
@@ -235,7 +240,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 {
                     case 'order':
                     case 'reorder':
-                        $attachments_before = $this->get_meta($attachment_key, []);
+                        $attachments_before = $this->get_attachments($attachment_key, []);
                         $attachments = array_unique(array_merge($attachments, $attachments_before));
 
                         $this->add_attachments_meta($attachment_key, $attachments);
@@ -248,16 +253,19 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             }
             else{
 
-                if(!(is_array($attachments) && isset($attachments[0])))
+                if(isset($attachments[0]['name']))
                 {
-                    $attachments = [$attachments];
-                }
-
-                if(isset($attachments[0]) && isset($attachments[0]['name']))
-                {
+                    if($this->get_props_config($key, 'attachment_insert_mode') === 'replace')
+                    {
+                        $this->add_attachments_delete($key, $this->get_attachments($key, []), true);
+                    }
                     $this->add_attachments_insert($key, $attachments);
                 }
                 else{
+                    if($this->get_props_config($key, 'attachment_insert_mode') === 'add')
+                    {
+                        $attachments = array_merge($this->get_attachments($key, []), $attachments);
+                    }
                     $this->add_attachments_meta($key, wp_parse_id_list($attachments));
                 }
             }
@@ -267,7 +275,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             if(!is_array($attachments))
             {
-                return;
+                $attachments = empty($attachments) ? [] : [$attachments];
             }
 
             if(!empty($attachments))
@@ -275,14 +283,14 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $this->attachments = array_unique(array_merge($this->attachments, $attachments));
             }
             
-            $this->set_meta($key, $attachments);
+            $this->set_meta($key, (array)$attachments);
         }
 
         protected function del_attachments_meta($key, $attachments)
         {
             if(!is_array($attachments))
             {
-                return;
+                $attachments = empty($attachments) ? [] : [$attachments];
             }
 
             if(!empty($attachments))
@@ -303,21 +311,22 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                     $this->attachments_insert[$key] = [];
                 }
 
-                if(isset($attachments[0]))
+                if(!isset($attachments[0]))
                 {
-                    foreach($attachments as $attachment)
-                    {
-                        $this->add_attachments_insert($key, $attachment);
-                    }
+                    $attachments = [$attachments];
                 }
-                elseif(isset($attachments['name']))
+
+                foreach($attachments as $attachment)
                 {
-                    $this->attachments_insert[$key][] = new Attachment(0, [], $this->get_id(), $attachments);
+                    if(isset($attachment['name']))
+                    {
+                        $this->attachments_insert[$key][] = new Attachment(0, [], $this->get_id(), $attachment);
+                    }                    
                 }
             }
         }
 
-        protected function add_attachments_delete($key, $attachments)
+        protected function add_attachments_delete($key, $attachments, $update_meta=false)
         {
             if(!empty($attachments))
             {
@@ -326,17 +335,15 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                     $this->attachments_delete[$key] = [];
                 }
 
-                if(is_array($attachments))
+                foreach((array)$attachments as $attachment)
                 {
-                    foreach($attachments as $attachment)
-                    {
-                        $this->add_attachments_delete($key, $attachment);
-                    }
+                    $this->attachments_delete[$key][] = new Attachment((int)$attachment);
                 }
-                elseif(is_int($attachments))
-                {
-                    $this->attachments_delete[$key][] = new Attachment($attachments);
-                }
+            }
+
+            if($update_meta)
+            {
+                $this->del_attachments_meta($key, $attachments);
             }
         }
 
