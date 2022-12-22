@@ -184,10 +184,10 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 
                 if(file_exists($save_path))
                 {
-                    $type = $this->file_data['type'];
+                    $mime_type = empty($this->file_data['type']) ? mime_content_type($save_path) : $this->file_data['type'];
 
                     $this->set_data('guid', $this->base_url . '/' . $save_name);
-                    $this->set_data('post_mime_type', $this->file_data['type']);
+                    $this->set_data('post_mime_type', $mime_type);
                     $this->set_data('post_title', $save_name);
                     //$this->set_data('post_content', '');
                     $this->set_data('post_status', 'inherit');
