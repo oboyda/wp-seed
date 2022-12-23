@@ -49,7 +49,7 @@ if(!function_exists('wpseed_get_view'))
                 ob_start();
             }
     
-            if(isset($view) && (isset($view->args['view_capability']) && ($view->args['view_capability'] === 'public' || current_user_can($view->args['view_capability']))))
+            if(isset($view) && (isset($view->args['view_cap']) && ($view->args['view_cap'] === 'public' || current_user_can($view->args['view_cap']))))
             {
                 include $view_path;
             }

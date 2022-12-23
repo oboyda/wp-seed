@@ -22,7 +22,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         public function __construct($args=[], $default_args=[], $args_parse_deep=true)
         {
             $default_args = wp_parse_args($default_args, [
-                'view_capability' => 'public'
+                'view_cap' => 'public'
             ]);
 
             if($args_parse_deep)
