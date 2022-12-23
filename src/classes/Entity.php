@@ -69,7 +69,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                         $dyn_key = isset($prop_config['attachment_order_input']) ? $prop_config['attachment_order_input'] : $key . '_order';
                         $this->props_config[$dyn_key] = [
                             'type' => 'attachment_action',
-                            'validate' => 'integer',
+                            // 'validate' => 'integer',
                             'attachment_action_parent' => $key,
                             'attachment_action_type' => 'order'
                         ];
@@ -77,7 +77,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                         $dyn_key = isset($prop_config['attachment_delete_input']) ? $prop_config['attachment_delete_input'] : $key . '_del';
                         $this->props_config[$dyn_key] = [
                             'type' => 'attachment_action',
-                            'validate' => 'integer',
+                            // 'validate' => 'integer',
                             'attachment_action_parent' => $key,
                             'attachment_action_type' => 'delete'
                         ];
@@ -223,6 +223,10 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             if(is_array($attachments) && isset($attachments['name']))
             {
                 $attachments = [$attachments];
+            }
+            elseif(is_string($attachments) && strpos($attachments, ',') !== false)
+            {
+                $attachments = wp_parse_id_list(explode(',', $attachments));
             }
             elseif(!is_array($attachments))
             {
