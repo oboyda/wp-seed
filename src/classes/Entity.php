@@ -42,11 +42,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         */
         public function __construct($props_config=[])
         {
-            if(!isset($this->prop_types))
-            {
-                $this->set_prop_types(['data', 'meta']);
-            }
-
+            $this->set_prop_types(['data', 'meta']);
             $this->set_props_config($props_config);
         }
         
@@ -95,7 +91,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
         protected function set_prop_types($prop_types)
         {
-            $this->prop_types = $prop_types;
+            $this->prop_types = is_array($prop_types) ? $prop_types : [$prop_types];
         }
 
         public function set_id($id)

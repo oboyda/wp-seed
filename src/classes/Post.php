@@ -26,9 +26,9 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         */
         public function __construct($post=null, $props_config=[])
         {
-            $this->set_prop_types(['data', 'meta', 'term', 'attachment']);
-
             parent::__construct($props_config);
+
+            $this->set_prop_types(['data', 'meta', 'term', 'attachment']);
 
             $this->init_data($post);
             $this->init_meta();
@@ -131,7 +131,10 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
         public function set_post_type($post_type)
         {
             $this->post_type = $post_type;
-            $this->set_data('post_type', $post_type);
+            if(isset($this->data))
+            {
+                $this->set_data('post_type', $post_type);
+            }
         }
 
         public function set_parent_id($id)
