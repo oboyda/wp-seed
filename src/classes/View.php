@@ -226,11 +226,18 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             {
                 $cols_num = 6;
             }
+
+            $html = '';
+
+            if($cols_num === 1)
+            {
+                $html = implode('', $items_html);
+
+                return $html;
+            }
     
             $items_html_rows = array_chunk($items_html, $cols_num);
             $col_class = 'col-' . $col_class . '-' . 12/$cols_num;
-    
-            $html = '';
     
             foreach($items_html_rows as $items_html_row)
             {
