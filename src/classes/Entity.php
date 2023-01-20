@@ -722,7 +722,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
         protected function cast_prop_walker(&$prop_item, $i, $cast=null)
         {
-            $prop = $this->cast_prop($prop, $cast);
+            $prop_item = $this->cast_prop($prop_item, $cast);
         }
 
         protected function cast_prop($prop, $cast=null)
@@ -736,25 +736,26 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             {
                 array_walk($prop, [$this, 'cast_prop_walker'], $cast);
             }
-
-            switch($cast)
-            {
-                case 'int':
-                case 'integer':
-                    $prop = intval($prop);
-                break;
-                case 'float':
-                case 'floatval':
-                    $prop = floatval($prop);
-                break;
-                case 'bool':
-                case 'boolean';
-                    $prop = boolval($prop);
-                break;
-                case 'str':
-                case 'string';
-                    $prop = strval($prop);
-                break;
+            else{
+                switch($cast)
+                {
+                    case 'int':
+                    case 'integer':
+                        $prop = intval($prop);
+                    break;
+                    case 'float':
+                    case 'floatval':
+                        $prop = floatval($prop);
+                    break;
+                    case 'bool':
+                    case 'boolean';
+                        $prop = boolval($prop);
+                    break;
+                    case 'str':
+                    case 'string';
+                        $prop = strval($prop);
+                    break;
+                }
             }
 
             return $prop;
