@@ -530,7 +530,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             $meta = (empty($meta) && isset($default)) ? $default : (is_string($meta) ? trim($meta) : $meta);
 
-            return $this->cast_prop($meta, $key);
+            return $this->cast_prop($meta, $this->get_props_config($key, 'cast'));
         }
 
         /*
@@ -720,44 +720,41 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             return $errors;
         }
 
-        protected function cast_prop_walker(&$prop_item, $i, $cast)
+        protected function cast_prop_walker(&$prop_item, $i, $cast=null)
         {
-            $prop = $this->cast_prop($prop, null, $cast);
+            $prop = $this->cast_prop($prop, $cast);
         }
 
-        protected function cast_prop($prop, $prop_name=null, $cast=null)
+        protected function cast_prop($prop, $cast=null)
         {
             if(!isset($cast))
             {
-                $cast = isset($prop_name) ? $this->get_props_config($prop_name, 'cast') : null;
+                return $prop;
             }
 
-            if(isset($cast))
+            if(is_array($prop))
             {
-                if(is_array($prop))
-                {
-                    array_walk($prop, [$this, 'cast_prop_walker'], $cast);
-                }
-    
-                switch($cast)
-                {
-                    case 'int':
-                    case 'integer':
-                        $prop = intval($prop);
-                    break;
-                    case 'float':
-                    case 'floatval':
-                        $prop = floatval($prop);
-                    break;
-                    case 'bool':
-                    case 'boolean';
-                        $prop = boolval($prop);
-                    break;
-                    case 'str':
-                    case 'string';
-                        $prop = strval($prop);
-                    break;
-                }
+                array_walk($prop, [$this, 'cast_prop_walker'], $cast);
+            }
+
+            switch($cast)
+            {
+                case 'int':
+                case 'integer':
+                    $prop = intval($prop);
+                break;
+                case 'float':
+                case 'floatval':
+                    $prop = floatval($prop);
+                break;
+                case 'bool':
+                case 'boolean';
+                    $prop = boolval($prop);
+                break;
+                case 'str':
+                case 'string';
+                    $prop = strval($prop);
+                break;
             }
 
             return $prop;
