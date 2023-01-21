@@ -10,6 +10,9 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         var $id;
         var $html_class;
         var $html_style;
+
+        protected $context_name;
+        protected $mod_name;
             
         /*
         --------------------------------------------------
@@ -39,8 +42,18 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
 
+            if(!isset($this->context_name))
+            {
+                $this->setContextName('');
+            }
+            if(!isset($this->mod_name))
+            {
+                $this->setModName('');
+            }
+
             $this->html_class = ['view'];
-            $this->addHtmlClass($this->getName());
+            $this->addHtmlClass($this->context_name);
+            $this->addHtmlClass($this->getName(false, false));
 
             $this->html_style = [];
         }
@@ -56,6 +69,26 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             {
                 if(!isset($this->$name) || $force_set) $this->$name = $arg;
             }
+        }
+
+        /* 
+        --------------------------------------------------
+        Set $this->context_name
+        --------------------------------------------------
+        */
+        protected function setContextName($context_name)
+        {
+            $this->context_name = $context_name;
+        }
+    
+        /* 
+        --------------------------------------------------
+        Set $this->mod_name
+        --------------------------------------------------
+        */
+        protected function setModName($mod_name)
+        {
+            $this->mod_name = $mod_name;
         }
         
         /* 
@@ -129,13 +162,35 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         @return str
         --------------------------------------------------
         */
-        public function getName()
-        {
-            $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
+        // public function getName()
+        // {
+        //     $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
             
-            return str_replace('_', '-', $name);
+        //     return str_replace('_', '-', $name);
+        // }
+        public function getName($include_context=false, $include_mod=true)
+        {
+            $name_parts = [];
+    
+            if($include_context && $this->context_name)
+            {
+                $name_parts['context_name'] = $this->context_name;
+            }
+    
+            if($include_mod && $this->mod_name)
+            {
+                $name_parts['mod_name'] = $this->mod_name;
+            }
+    
+            $name_parts['view_name'] = strtolower(basename(str_replace('\\', '/', get_called_class())));
+    
+            $name = implode('--', $name_parts);
+    
+            $name = strtolower(str_replace('_', '-', $name));
+    
+            return $name;
         }
-
+    
         /* 
         --------------------------------------------------
         Add view classes
