@@ -129,11 +129,11 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         @return str
         --------------------------------------------------
         */
-        public function getName($underscore=false)
+        public function getName()
         {
             $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
             
-            return $underscore ? $name : str_replace('_', '-', $name);
+            return str_replace('_', '-', $name);
         }
 
         /* 
