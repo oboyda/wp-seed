@@ -197,7 +197,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
     
             $name_parts['view_name'] = $this->getViewName();
     
-            $name = implode('--', $name_parts);
+            $name = implode('.', $name_parts);
     
             $name = strtolower(str_replace('_', '-', $name));
     
