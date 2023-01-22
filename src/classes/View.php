@@ -14,8 +14,8 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         protected $context_name;
         protected $mod_name;
 
-        // const CONTEXT_NAME;
-        // const MOD_NAME;
+        // const CONTEXT_NAME = '';
+        // const MOD_NAME = '';
             
         /*
         --------------------------------------------------
@@ -87,7 +87,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
         protected function getContextName()
         {
-            return $this->context_name;
+            return defined('static::CONTEXT_NAME') ? static::CONTEXT_NAME : (isset($this->context_name) ? $this->context_name : '');
         }
     
         /* 
@@ -102,7 +102,8 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
         protected function getModName($as_slug=false)
         {
-            return $as_slug ? strtolower(str_replace('_', '-', $this->mod_name)) : $this->mod_name;
+            $mod_name = defined('static::MOD_NAME') ? static::MOD_NAME : (isset($this->mod_name) ? $this->mod_name : '');
+            return $as_slug ? strtolower(str_replace('_', '-', $mod_name)) : $mod_name;
         }
         
         /* 
