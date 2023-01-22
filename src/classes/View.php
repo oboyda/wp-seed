@@ -213,12 +213,14 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         */
         public function addHtmlClass($class)
         {
+            if(empty($class))
+            {
+                return;
+            }
+
             $_class = is_array($class) ? $class : explode(' ', trim($class));
 
-            if(!empty($_class))
-            {
-                $this->html_class = array_merge($this->html_class, $_class);
-            }
+            $this->html_class = array_merge($this->html_class, $_class);
         }
             
         /* 
