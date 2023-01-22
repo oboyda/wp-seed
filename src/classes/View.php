@@ -52,8 +52,15 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             }
 
             $this->html_class = ['view'];
-            $this->addHtmlClass($this->context_name);
-            $this->addHtmlClass($this->getName(false, false));
+            if($this->context_name)
+            {
+                $this->addHtmlClass($this->context_name);
+            }
+            if($this->mod_name)
+            {
+                $this->addHtmlClass($this->mod_name);
+            }
+            $this->addHtmlClass($this->getViewName());
 
             $this->html_style = [];
         }
@@ -162,12 +169,13 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         @return str
         --------------------------------------------------
         */
-        // public function getName()
-        // {
-        //     $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
+        public function getViewName()
+        {
+            $name = strtolower(basename(str_replace('\\', '/', get_called_class())));
             
-        //     return str_replace('_', '-', $name);
-        // }
+            return str_replace('_', '-', $name);
+        }
+
         public function getName($include_context=false, $include_mod=true)
         {
             $name_parts = [];
@@ -182,7 +190,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                 $name_parts['mod_name'] = $this->mod_name;
             }
     
-            $name_parts['view_name'] = strtolower(basename(str_replace('\\', '/', get_called_class())));
+            $name_parts['view_name'] = $this->getViewName();
     
             $name = implode('--', $name_parts);
     
