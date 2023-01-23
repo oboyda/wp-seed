@@ -11,12 +11,6 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         var $html_class;
         var $html_style;
 
-        protected $context_name;
-        protected $mod_name;
-
-        // const CONTEXT_NAME = '';
-        // const MOD_NAME = '';
-            
         /*
         --------------------------------------------------
         Construct the View object
@@ -55,8 +49,6 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             }
 
             $this->html_class = ['view'];
-            $this->addHtmlClass($this->getContextName());
-            $this->addHtmlClass($this->getModName(true));
             $this->addHtmlClass($this->getViewName());
 
             $this->html_style = [];
@@ -75,37 +67,6 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             }
         }
 
-        /* 
-        --------------------------------------------------
-        Set $this->context_name
-        --------------------------------------------------
-        */
-        protected function setContextName($context_name)
-        {
-            $this->context_name = $context_name;
-        }
-
-        protected function getContextName()
-        {
-            return defined('static::CONTEXT_NAME') ? static::CONTEXT_NAME : (isset($this->context_name) ? $this->context_name : '');
-        }
-    
-        /* 
-        --------------------------------------------------
-        Set $this->mod_name
-        --------------------------------------------------
-        */
-        protected function setModName($mod_name)
-        {
-            $this->mod_name = $mod_name;
-        }
-
-        protected function getModName($as_slug=false)
-        {
-            $mod_name = defined('static::MOD_NAME') ? static::MOD_NAME : (isset($this->mod_name) ? $this->mod_name : '');
-            return $as_slug ? strtolower(str_replace('_', '-', $mod_name)) : $mod_name;
-        }
-        
         /* 
         --------------------------------------------------
         Magic method for getting (get_[property_name]) and checking (has_[property_name]) object properties
@@ -184,29 +145,6 @@ if(!class_exists(__NAMESPACE__ . '\View'))
             return str_replace('_', '-', $name);
         }
 
-        public function getName($include_context=false, $include_mod=true)
-        {
-            $name_parts = [];
-    
-            if($include_context && $this->getContextName())
-            {
-                $name_parts['context_name'] = $this->getContextName();
-            }
-    
-            if($include_mod && $this->getModName())
-            {
-                $name_parts['mod_name'] = $this->getModName(true);
-            }
-    
-            $name_parts['view_name'] = $this->getViewName();
-    
-            $name = implode('.', $name_parts);
-    
-            // $name = strtolower(str_replace('_', '-', $name));
-    
-            return $name;
-        }
-    
         /* 
         --------------------------------------------------
         Add view classes
