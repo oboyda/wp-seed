@@ -39,15 +39,6 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
 
-            if(!isset($this->context_name))
-            {
-                $this->setContextName('');
-            }
-            if(!isset($this->mod_name))
-            {
-                $this->setModName('');
-            }
-
             $this->html_class = ['view'];
             $this->addHtmlClass($this->getViewName());
 
