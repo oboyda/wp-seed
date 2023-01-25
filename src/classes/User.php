@@ -167,10 +167,10 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 $this->set_data('user_login', $this->get_data('user_email'));
             }
 
-            // if($this->get_data('user_pass'))
-            // {
-            //     $this->set_data(wp_hash_password($this->get_data('user_pass')));
-            // }
+            if(!$this->get_data('user_pass'))
+            {
+                $this->set_data('user_pass', wp_generate_password());
+            }
 
             $data = array_merge($this->get_data(), [
                 'meta_input' => $this->get_meta(null, null, true)
