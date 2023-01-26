@@ -129,6 +129,11 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $this->meta[$key] = [];
             }
 
+            if(!isset($value))
+            {
+                $value = '';
+            }
+
             if($single)
             {
                 $this->meta[$key] = [$value];
