@@ -162,7 +162,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 $id = wp_update_post($data);
                 if(is_wp_error($id))
                 {
-                    return false;
+                    return $id;
                 }
             }
             elseif(!empty($this->file_data))
@@ -199,7 +199,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                     $id = wp_insert_attachment($data, $save_path, $this->parent_id);
                     if(is_wp_error($id))
                     {
-                        return false;
+                        return $id;
                     }
     
                     $this->set_id((int)$id);
@@ -219,6 +219,8 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                     []
                 );
             }
+
+            return $this->get_id();
         }
     
         /*

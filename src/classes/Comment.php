@@ -122,7 +122,7 @@ if(!class_exists(__NAMESPACE__ . '\Comment'))
 
             $created = wp_insert_comment($_fields['data']);
             if(!$created || is_wp_error($created)){
-                return;
+                $created;
             }
 
             $this->ID = $created;
@@ -147,7 +147,7 @@ if(!class_exists(__NAMESPACE__ . '\Comment'))
                 $_fields['data']['ID'] = $this->ID;
                 $updated = wp_update_comment($_fields['data']);
                 if(!$updated || is_wp_error($updated)){
-                    return;
+                    return $updated;
                 }
             }
 

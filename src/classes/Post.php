@@ -258,7 +258,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 $id = wp_update_post($data);
                 if(is_wp_error($id))
                 {
-                    return false;
+                    return $id;
                 }
 
                 do_action('wpseed_post_updated', $this->get_id(), $this);
@@ -267,7 +267,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 $id = wp_insert_post($data);
                 if(is_wp_error($id))
                 {
-                    return false;
+                    return $id;
                 }
 
                 $this->set_id((int)$id);
@@ -289,7 +289,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
 
             do_action('wpseed_post_persisted', $this->get_id(), $this);
 
-            return true;
+            return $this->get_id();
         }
 
         protected function persist_terms()
