@@ -181,14 +181,14 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 $id = wp_update_user($data);
                 if(is_wp_error($id))
                 {
-                    return $id;
+                    return false;
                 }
             }
             else{
                 $id = wp_insert_user($data);
                 if(is_wp_error($id))
                 {
-                    return $id;
+                    return false;
                 }
 
                 $this->set_id((int)$id);

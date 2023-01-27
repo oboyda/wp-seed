@@ -258,7 +258,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 $id = wp_update_post($data);
                 if(is_wp_error($id))
                 {
-                    return $id;
+                    return false;
                 }
 
                 do_action('wpseed_post_updated', $this->get_id(), $this);
@@ -267,7 +267,7 @@ if(!class_exists(__NAMESPACE__ . '\Post'))
                 $id = wp_insert_post($data);
                 if(is_wp_error($id))
                 {
-                    return $id;
+                    return false;
                 }
 
                 $this->set_id((int)$id);
