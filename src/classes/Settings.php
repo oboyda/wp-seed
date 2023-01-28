@@ -17,9 +17,9 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
             $this->args = wp_parse_args($args, array(
                 'prefix' => 'wpseed_',
                 'menu_page' => 'options-general.php', // https://codex.wordpress.org/Function_Reference/add_submenu_page#Parameters
-                'menu_title' => __('Theme Options', 'ac'),
-                'page_title' => __('Theme Options', 'ac'),
-                'btn_title' => __('Update', 'ac'),
+                'menu_title' => __('Theme Options', 'wpseed'),
+                'page_title' => __('Theme Options', 'wpseed'),
+                'btn_title' => __('Update', 'wpseed'),
                 'render_fields' => true
             ));
 

@@ -101,7 +101,7 @@ if(!class_exists(__NAMESPACE__ . '\Form'))
                                  * -------------------------------------------------- */
                                 if(!empty($file['error'][$i])){
                                     $resp['error_fields'][] = $key;
-                                    $resp['errors'][] = sprintf(__('%s failed to upload', 'ac'), $file_name);
+                                    $resp['errors'][] = sprintf(__('%s failed to upload', 'wpseed'), $file_name);
 
                                     continue;
                                 }
@@ -110,14 +110,14 @@ if(!class_exists(__NAMESPACE__ . '\Form'))
                                  * -------------------------------------------------- */
                                 if(isset($field_config['file_types']) && !in_array($file['type'][$i], $field_config['file_types'])){
                                     $resp['error_fields'][] = $key;
-                                    $resp['errors'][] = sprintf(__('%s file type %s is not allowed', 'ac'), $file_name, $file['type'][$i]);
+                                    $resp['errors'][] = sprintf(__('%s file type %s is not allowed', 'wpseed'), $file_name, $file['type'][$i]);
                                 }
 
                                 /* Validate size
                                  * -------------------------------------------------- */
                                 if(isset($field_config['file_max_size']) && $file['size'][$i] > $field_config['file_max_size']){
                                     $resp['error_fields'][] = $key;
-                                    $resp['errors'][] = sprintf(__('%s file size is not allowed', 'ac'), $file_name);
+                                    $resp['errors'][] = sprintf(__('%s file size is not allowed', 'wpseed'), $file_name);
                                 }
 
                                 $resp['files'][$key][$i] = [
@@ -160,7 +160,7 @@ if(!class_exists(__NAMESPACE__ . '\Form'))
 
             $resp['error_fields'] = array_unique($resp['error_fields']);
             /*if(!empty($resp['error_fields']) && empty($resp['errors'])){
-                $resp['errors'][] = __('Check the required fields', 'ac');
+                $resp['errors'][] = __('Check the required fields', 'wpseed');
             }*/
 
             return $resp;
