@@ -248,7 +248,8 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
                 $this->addErrorMessage(__('Something went wrong. Please, try again later.', 'wpseed'));
             }
 
-            $resp = wp_parse_args($resp, [
+            $resp = apply_filters('wpseed_respond_args', wp_parse_args($resp, [
+                
                 'status' => $this->status,
                 'error_fields' => $this->error_fields,
                 'error_messages' => $this->error_messages,
@@ -257,7 +258,7 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
                 'values' => $this->values,
                 'redirect' => $this->redirect,
                 'reload' => $this->reload
-            ]);
+            ]));
 
             wp_send_json($resp);
         }
