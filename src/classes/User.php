@@ -77,14 +77,15 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 foreach($this->get_props_config() as $key => $prop_config)
                 {
                     $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
+                    $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
                     
-                    if(in_array($type, ['meta', 'attachment']) && isset($meta[$key]))
+                    if(in_array($type, ['meta', 'attachment']) && isset($meta[$sys_key]))
                     {
-                        $this->meta[$key] = [];
+                        $this->meta[$sys_key] = [];
 
-                        foreach($meta[$key] as $i => $_meta)
+                        foreach($meta[$sys_key] as $i => $_meta)
                         {
-                            $this->meta[$key][$i] = maybe_unserialize($_meta);
+                            $this->meta[$sys_key][$i] = maybe_unserialize($_meta);
                         }
                     }
                 }
