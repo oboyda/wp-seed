@@ -240,13 +240,13 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             if(!empty($this->error_fields))
             {
                 $this->setStatus(false);
-                $this->addErrorMessage(__('Please, check the required fields.', 'wpseed'));
+                // $this->addErrorMessage(__('Please, check the required fields.', 'wpseed'));
             }
 
-            if(!$this->status && empty($this->messages))
-            {
-                $this->addErrorMessage(__('Something went wrong. Please, try again later.', 'wpseed'));
-            }
+            // if(!$this->status && empty($this->messages))
+            // {
+            //     $this->addErrorMessage(__('Something went wrong. Please, try again later.', 'wpseed'));
+            // }
 
             $resp = apply_filters('wpseed_respond_args', wp_parse_args($resp, [
                 
