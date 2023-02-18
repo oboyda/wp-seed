@@ -80,7 +80,7 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
         protected function addSuccessMessage($message)
         {
-            if(!in_array($message, $this->success_messages))
+            if(!empty($message) && !in_array($message, $this->success_messages))
             {
                 $this->success_messages[] = $message;
                 $this->messages .= $this->wrapResponseMessages($message, 'success');
@@ -89,7 +89,12 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
         protected function addErrorMessage($message)
         {
-            if(is_array($message) && !empty($message))
+            if(empty($message))
+            {
+                return;
+            }
+
+            if(is_array($message))
             {
                 foreach($message as $_message)
                 {
