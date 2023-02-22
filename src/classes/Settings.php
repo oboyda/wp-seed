@@ -178,7 +178,7 @@ if(!class_exists(__NAMESPACE__ . '\Settings'))
                 case 'checkbox_multiple': ?>
                     <?php foreach((array) $field['field_config']['options'] as $value => $option){ ?>
                     <p>
-                        <input id="<?php echo $option_name . '-' . $value; ?>" name="<?php echo $option_name; ?>" type="checkbox" value="<?php echo $value; ?>" <?php checked(in_array($value, (array)$this->get_option($field['field_id'])), true); ?> />
+                        <input id="<?php echo $option_name . '-' . $value; ?>" name="<?php echo $option_name; ?>[]" type="checkbox" value="<?php echo $value; ?>" <?php checked(in_array($value, (array)$this->get_option($field['field_id'])), true); ?> />
                         <label for="<?php echo $option_name . '-' . $value; ?>"><?php echo $option; ?></label>
                     </p>
                     <?php } ?>
