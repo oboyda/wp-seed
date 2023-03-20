@@ -169,6 +169,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             
             switch($san_type)
             {
+                case 'string':
                 case 'text':
                     $val_item = sanitize_text_field($val_item);
                     break;
