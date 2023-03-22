@@ -120,6 +120,11 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
         -------------------------
         */
 
+        protected function getStatus()
+        {
+            return $this->status;
+        }
+
         protected function getReq($key, $san='text', $default=null)
         {
             return $this->req->get($key, $san, $default);
