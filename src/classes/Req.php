@@ -40,7 +40,8 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                     }
                     else{
 
-                        $val = self::sanitizeReq(urldecode($val), $san_type);
+                        // $val = self::sanitizeReq(urldecode($val), $san_type);
+                        $val = self::sanitizeReq($val, $san_type);
                     }
                 }
                 
@@ -171,6 +172,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
             {
                 case 'string':
                 case 'text':
+                    // $val_item = filter_var($val_item, FILTER_SANITIZE_STRING);
                     $val_item = sanitize_text_field($val_item);
                     break;
                 case 'textarea':
@@ -183,6 +185,8 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                 case 'floatval':
                     $val_item = floatval($val_item);
                     break;
+                default:
+                    $val_item = filter_var($val_item, FILTER_UNSAFE_RAW);
             }
             
             return $val_item;
