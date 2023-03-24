@@ -28,12 +28,13 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function __construct($user=null, $props_config=[])
         {
-            $this->set_prop_types(['data', 'meta']);
-
             parent::__construct($props_config);
+
+            $this->set_prop_types(['data', 'meta', 'attachment']);
 
             $this->init_data($user);
             $this->init_meta();
+            $this->init_attachments();
         }
         
         /*
@@ -79,7 +80,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                     $type = isset($prop_config['type']) ? $prop_config['type'] : 'data';
                     $sys_key = isset($prop_config['sys_key']) ? $prop_config['sys_key'] : $key;
                     
-                    if(in_array($type, ['meta', 'attachment']) && isset($meta[$sys_key]))
+                    if(in_array($type, ['meta', 'file', 'attachment']) && isset($meta[$sys_key]))
                     {
                         $this->meta[$sys_key] = [];
 
@@ -90,6 +91,27 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                     }
                 }
             }
+        }
+
+        protected function init_attachments()
+        {
+            if(!in_array('attachment', $this->prop_types)) return;
+            
+            $this->attachments = [];
+            $this->attachments_insert = [];
+            $this->attachments_delete = [];
+            
+            // if(!$this->id) return;
+
+            // $this->attachments = get_posts([
+            //     'post_type' => 'attachment',
+            //     'posts_per_page' => -1,
+            //     'post_parent' => $this->id,
+            //     'post_status' => 'any',
+            //     'order' => 'ASC',
+            //     'orderby' => 'menu_order',
+            //     'fields' => 'ids'
+            // ]);
         }
 
         /*
@@ -195,6 +217,8 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 $this->set_id((int)$id);
             }
 
+            $this->persist_attachments();
+
             if($reconstruct)
             {
                 $this->__construct(
@@ -206,18 +230,79 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             return $this->get_id();
         }
 
+        protected function persist_attachments()
+        {
+            if(!($this->get_id() && in_array('attachment', $this->prop_types)))
+            {
+                return;
+            }
+
+            if(!empty($this->attachments_delete))
+            {
+                foreach($this->attachments_delete as $key => $attachments)
+                {
+                    foreach($attachments as $attachment)
+                    {
+                        if($attachment->get_prop('post_author') === $this->get_id())
+                        {
+                            $attachment->delete(true);
+                        }
+                    }
+                }
+
+                $this->attachments_delete = [];
+            }
+
+            if(!empty($this->attachments_insert))
+            {
+                foreach($this->attachments_insert as $key => $attachments)
+                {
+                    $attachment_ids = [];
+                    foreach($attachments as $attachment)
+                    {
+                        $attachment->set_parent_id(0);
+                        $attachment->set_data('post_author', $this->get_id());
+                        $attachment->persist();
+                        if($attachment->get_id())
+                        {
+                            $attachment_ids[] = $attachment->get_id();
+                        }
+                    }
+
+                    if($this->get_props_config($key, 'attachment_insert_mode', 'add') === 'add')
+                    {
+                        $attachment_ids = array_merge($attachment_ids, $this->get_meta($key, []));
+                    }
+
+                    $this->set_attachments($key, $attachment_ids);
+
+                    // We need to persist again in order to update the new attachment meta
+                    // Do not persist to avoid looping
+                    update_user_meta($this->get_id(), $key, $attachment_ids);
+                }
+
+                $this->attachments_insert = [];
+            }
+        }
+
         /*
         --------------------------------------------------
         Delete user
         
         @param bool $reassign Reassign posts and links to new User ID
+        @param bool $delete_attachments Whether to delete children
 
         @return void
         --------------------------------------------------
         */
-        public function delete($reassign=null)
+        public function delete($reassign=null, $delete_attachments=false)
         {
             if(!$this->id) return false;
+
+            if($delete_attachments)
+            {
+                $this->delete_attachments($force_delete);
+            }
             
             return wp_delete_user($this->id, $reassign);
         }

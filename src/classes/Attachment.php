@@ -30,12 +30,12 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
         */
         public function __construct($post=null, $props_config=[], $parent_id=0, $file_data=[])
         {
-            $this->set_prop_types(['data', 'meta']);
-            
+            parent::__construct($post, $props_config);
+
             $this->set_parent_id($parent_id);
             $this->set_file_data($file_data);
 
-            parent::__construct($post, $props_config);
+            $this->set_prop_types(['data', 'meta']);
 
             $this->init_metadata();
         }
