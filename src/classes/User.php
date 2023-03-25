@@ -243,7 +243,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
                 {
                     foreach($attachments as $attachment)
                     {
-                        if($attachment->get_prop('post_author') === $this->get_id())
+                        if((int)$attachment->get_prop('post_author') === $this->get_id())
                         {
                             $attachment->delete(true);
                         }
