@@ -619,6 +619,18 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         {
             if(isset($key))
             {
+                if(is_array($key))
+                {
+                    $configs = [];
+                    foreach($key as $_key){
+                        $config = $this->get_props_config($_key, null, $default);
+                        if(isset($config)){
+                            $configs[$_key] = $config;
+                        }
+                    }
+                    return $configs;
+                }
+
                 if(isset($data_key))
                 {
                     return (isset($this->props_config[$key]) && isset($this->props_config[$key][$data_key])) ? $this->props_config[$key][$data_key] : $default;

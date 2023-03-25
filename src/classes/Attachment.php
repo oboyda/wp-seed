@@ -6,10 +6,10 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 {
     class Attachment extends Post
     {
-        private $file_data;
-        private $metadata;
-        private $base_url;
-        private $base_dir;
+        protected $file_data;
+        protected $metadata;
+        protected $base_url;
+        protected $base_dir;
 
         /*
         --------------------------------------------------
