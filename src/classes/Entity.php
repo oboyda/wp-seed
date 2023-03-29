@@ -580,7 +580,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         @return array|int
         --------------------------------------------------
         */
-        public function get_attachments($key=null, $default=null)
+        public function get_attachments($key=null, $default=null, $single=false)
         {
             if(!in_array('attachment', $this->prop_types)) return null;
 
@@ -588,7 +588,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
             {
                 $attachments = wp_parse_id_list($this->get_meta($key, []));
 
-                return (empty($attachments) && isset($default)) ? $default : $attachments;
+                $key_attachments = (empty($attachments) && isset($default)) ? $default : $attachments;
+
+                return $single ? (!empty($key_attachments[0]) ? $key_attachments[0] : null) : $key_attachments;
             }
 
             return (empty($this->attachments) && isset($default)) ? $default : $this->attachments;
@@ -650,11 +652,12 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         --------------------------------------------------
         */
 
-        public function get_prop($key, $_default=null, $single=true)
+        public function get_prop($key, $_default=null, $single=null)
         {
             $type = $this->get_props_config($key, 'type', 'data');
             $sys_key = $this->get_props_config($key, 'sys_key', $key);
             $default = $this->get_props_config($key, 'default', $_default);
+            $single = isset($single) ? $single : $this->get_props_config($key, 'single', true);
 
             switch($type)
             {
@@ -669,7 +672,9 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 break;
                 case 'file':
                 case 'attachment':
-                    return $this->get_attachments($sys_key, $default);
+                    $multiple = $this->get_props_config($key, 'multiple');
+                    $_single = isset($multiple) ? !$multiple : $single;
+                    return $this->get_attachments($sys_key, $default, $_single);
                 break;
             }
 
