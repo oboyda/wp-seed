@@ -189,8 +189,12 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                     $this->set_data('guid', $this->base_url . '/' . $save_name);
                     $this->set_data('post_mime_type', $mime_type);
                     $this->set_data('post_title', $save_name);
-                    //$this->set_data('post_content', '');
-                    $this->set_data('post_status', 'inherit');
+                    // $this->set_data('post_content', '');
+
+                    if(!$this->get_data('post_status'))
+                    {
+                        $this->set_data('post_status', 'inherit');
+                    }
 
                     $data = array_merge($this->get_data(), [
                         'meta_input' => $this->get_meta(null, null, true)

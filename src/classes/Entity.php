@@ -325,8 +325,12 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 {
                     if(isset($attachment['name']))
                     {
-                        $this->attachments_insert[$key][] = new Attachment(0, [], $this->get_id(), $attachment);
-                    }                    
+                        $_attachment = new Attachment(0, [], $this->get_id(), $attachment);
+                        $_attachment_status = $this->get_props_config($key, 'attachment_status', 'inherit');
+                        $_attachment->set_data('post_status', $_attachment_status);
+                        
+                        $this->attachments_insert[$key][] = $_attachment;
+                    }
                 }
             }
         }
