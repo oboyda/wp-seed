@@ -182,6 +182,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                 case 'integer':
                     $val_item = intval($val_item);
                     break;
+                case 'float':
                 case 'floatval':
                     $val_item = floatval($val_item);
                     break;
