@@ -183,6 +183,8 @@ if(!class_exists(__NAMESPACE__ . '\User'))
         */
         public function persist($reconstruct=false)
         {
+            global $wpdb;
+
             $updating = (bool)$this->get_id();
 
             if(!$this->get_data('user_login'))
@@ -201,6 +203,22 @@ if(!class_exists(__NAMESPACE__ . '\User'))
 
             if($updating)
             {
+                /*
+                Check if user_login should be updated.
+                wp_update_user() does not allow updating user_login
+                -------------------------
+                */
+                $wpdb_user_login = $wpdb->get_var( $wpdb->prepare("SELECT user_login FROM $wpdb->users WHERE ID=%d", $this->get_id()) );
+                if($wpdb_user_login && $wpdb_user_login !== $this->get_data('user_login')){
+                    $wpdb->update(
+                        $wpdb->users, 
+                        ['user_login' => $this->get_data('user_login')],
+                        ['ID' => $this->get_id()],
+                        ['%s'],
+                        ['%d']
+                    );
+                }
+
                 $id = wp_update_user($data);
                 if(is_wp_error($id))
                 {
