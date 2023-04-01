@@ -301,7 +301,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
 
             if($delete_attachments)
             {
-                $this->delete_attachments($force_delete);
+                $this->delete_attachments(true);
             }
             
             return wp_delete_user($this->id, $reassign);
