@@ -247,16 +247,10 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
 
         protected function respond($resp=[])
         {
-            if(!empty($this->error_fields))
+            if($this->hasErrors())
             {
                 $this->setStatus(false);
-                // $this->addErrorMessage(__('Please, check the required fields.', 'wpseed'));
             }
-
-            // if(!$this->status && empty($this->messages))
-            // {
-            //     $this->addErrorMessage(__('Something went wrong. Please, try again later.', 'wpseed'));
-            // }
 
             $resp = apply_filters('wpseed_respond_args', wp_parse_args($resp, [
                 
