@@ -125,7 +125,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(!empty($file['error']))
                                 {
                                     $result['error_fields'][] = $key;
-                                    $result['errors'][] = sprintf(__('%s failed to upload', 'wpseed'), $file['name']);
+                                    $result['errors'][] = apply_filters('wpseed_file_error_upload_failed', sprintf(__('%s failed to upload', 'wpseed'), $file['name']), $file, $key, $field_config);
                                 }
 
                                 /* 
@@ -135,7 +135,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(isset($field_config['file_types']) && !in_array($file['type'], $field_config['file_types']))
                                 {
                                     $result['error_fields'][] = $key;
-                                    $result['errors'][] = sprintf(__('%s file type %s is not allowed', 'wpseed'), $file['name'], $file['type']);
+                                    $result['errors'][] = apply_filters('wpseed_file_error_file_type', sprintf(__('File type %1$s is not allowed for %2$s.', 'wpseed'), $file['type'], $file['name']), $file, $key, $field_config);
                                 }
 
                                 /* 
@@ -145,7 +145,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                                 if(isset($field_config['file_max_size']) && $file['size'] > $field_config['file_max_size'])
                                 {
                                     $result['error_fields'][] = $key;
-                                    $result['errors'][] = sprintf(__('%s file size is not allowed', 'wpseed'), $file['name']);
+                                    $result['errors'][] = apply_filters('wpseed_file_error_file_size', sprintf(__('File %1$s exceeds the maximum allowed file size of %2$d.', 'wpseed'), $file['name'], $field_config['file_max_size']), $file, $key, $field_config);
                                 }
                             }
 
