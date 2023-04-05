@@ -325,7 +325,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 {
                     if(isset($attachment['name']))
                     {
-                        $_attachment = new Attachment(0, [], $this->get_id(), $attachment);
+                        $_entity_type = $this->get_props_config($key, 'entity_type', '\WPSEED\Attachment');
+                        $_attachment = new $_entity_type(0, [], $this->get_id(), $attachment);
                         $_attachment_status = $this->get_props_config($key, 'attachment_status', 'inherit');
                         $_attachment->set_data('post_status', $_attachment_status);
                         
