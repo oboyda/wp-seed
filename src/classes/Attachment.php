@@ -52,8 +52,8 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             // $upload_dir = wp_get_upload_dir();
             $upload_dir = wp_upload_dir();
 
-            if(isset($upload_dir['url'])) $this->base_url = $upload_dir['url'];
-            if(isset($upload_dir['path'])) $this->base_dir = $upload_dir['path'];
+            if(isset($upload_dir['url'])) $this->base_url = apply_filters('wpseed_attachment_base_url', $upload_dir['url'], $this);
+            if(isset($upload_dir['path'])) $this->base_dir = apply_filters('wpseed_attachment_base_dir', $upload_dir['path'], $this);
         }
 
         public function set_file_data($file_data)
@@ -167,8 +167,8 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             }
             elseif(!empty($this->file_data))
             {
-                $save_name = wp_unique_filename($this->base_dir, $this->file_data['name']);
-                $save_path = $this->base_dir . '/' . $save_name;
+                $save_name = apply_filters('wpseed_attachment_save_name', wp_unique_filename($this->base_dir, $this->file_data['name']), $this);
+                $save_path = apply_filters('wpseed_attachment_save_path', $this->base_dir . '/' . $save_name, $this);
                 
                 $tmp_dir = sys_get_temp_dir();
                 
