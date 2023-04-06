@@ -252,7 +252,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 
                     //require_once(ABSPATH . 'wp-admin/includes/image.php');
                     $metadata = wp_generate_attachment_metadata($this->get_id(), $save_path);
-                    wp_update_attachment_metadata($this->get_id(), $metadata);
+                    wp_update_attachment_metadata($this->get_id(), apply_filters('wpseed_attachment_save_metadata', $metadata, $this));
                 }
             }
 
