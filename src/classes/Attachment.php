@@ -63,6 +63,42 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
 
         /*
         --------------------------------------------------
+        Get file data (as in $_FILES)
+
+        @param string $key
+
+        @return mixed
+        --------------------------------------------------
+        */
+        public function get_file_data($key=null)
+        {
+            if(isset($key)){
+                return isset($this->file_data[$key]) ? $this->file_data[$key] : null;
+            }
+
+            return $this->file_data;
+        }
+
+        /*
+        --------------------------------------------------
+        Get file metadata
+
+        @param string $key
+
+        @return mixed
+        --------------------------------------------------
+        */
+        public function get_metadata($key=null)
+        {
+            if(isset($key)){
+                return isset($this->metadata[$key]) ? $this->metadata[$key] : null;
+            }
+
+            return $this->metadata;
+        }
+
+        /*
+        --------------------------------------------------
         Get Attachment file name
 
         @param string $size
@@ -167,9 +203,15 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
             }
             elseif(!empty($this->file_data))
             {
-                $save_name = apply_filters('wpseed_attachment_save_name', wp_unique_filename($this->base_dir, $this->file_data['name']), $this);
-                $save_path = apply_filters('wpseed_attachment_save_path', $this->base_dir . '/' . $save_name, $this);
-                
+                $save_names = apply_filters('wpseed_attachment_save_names', [
+                    'base_dir' => $this->base_dir,
+                    'base_url' => $this->base_url,
+                    'name' => $this->file_data['name']
+                ], $this);
+
+                $save_name = wp_unique_filename($save_names['base_dir'], $save_names['name']);
+                $save_path = apply_filters('wpseed_attachment_save_path', $save_names['base_dir'] . '/' . $save_name, $this);
+
                 $tmp_dir = sys_get_temp_dir();
                 
                 if(strpos($this->file_data['tmp_name'], $tmp_dir) === 0)
@@ -186,7 +228,7 @@ if(!class_exists(__NAMESPACE__ . '\Attachment'))
                 {
                     $mime_type = empty($this->file_data['type']) ? mime_content_type($save_path) : $this->file_data['type'];
 
-                    $this->set_data('guid', $this->base_url . '/' . $save_name);
+                    $this->set_data('guid', $save_names['base_url'] . '/' . $save_name);
                     $this->set_data('post_mime_type', $mime_type);
                     $this->set_data('post_title', $save_name);
                     // $this->set_data('post_content', '');
