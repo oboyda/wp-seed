@@ -216,7 +216,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         Distribute cols
         
         @param array $items_html
-        @param int $cols_num
+        @param int|array $cols_num
         @param str $col_class
         
         @return str
@@ -224,29 +224,44 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         */
         public function distributeCols($items_html, $cols_num=3, $col_class='lg')
         {
-            if($cols_num === 5 || $cols_num > 6)
-            {
-                $cols_num = 6;
-            }
-
             $html = '';
 
-            if($cols_num === 1)
-            {
-                $html = implode('', $items_html);
+            $_cols_num = is_array($cols_num) ? wp_parse_args($cols_num, [
+                'num' => 0,
+                'num_md' => 0,
+                'num_lg' => 0
+            ]) : [
+                'num' => ($col_class == '') ? $cols_num : 0,
+                'num_md' => ($col_class == 'md') ? $cols_num : 0,
+                'num_lg' => ($col_class == 'lg') ? $cols_num : 0
+            ];
 
+            $cols_num_max = max($_cols_num);
+
+            if($cols_num_max === 1){
+                $html = implode('', $items_html);
                 return $html;
             }
     
-            $items_html_rows = array_chunk($items_html, $cols_num);
-            $col_class = 'col-' . $col_class . '-' . 12/$cols_num;
-    
+            $_col_class = [];
+            if($_cols_num['num']){
+                $_col_class[] = 'col-' . 12/$_cols_num['num'];
+            }
+            if($_cols_num['num_md']){
+                $_col_class[] = 'col-md-' . 12/$_cols_num['num_md'];
+            }
+            if($_cols_num['num_lg']){
+                $_col_class[] = 'col-lg-' . 12/$_cols_num['num_lg'];
+            }
+
+            $items_html_rows = array_chunk($items_html, $cols_num_max);
+
             foreach($items_html_rows as $items_html_row)
             {
                 $html .= '<div class="row">';
                 foreach($items_html_row as $item_html)
                 {
-                    $html .= '<div class="' . $col_class . '">';
+                    $html .= '<div class="' . implode(' ', $_col_class) . '">';
                         $html .= $item_html;
                     $html .= '</div>';
                 }
