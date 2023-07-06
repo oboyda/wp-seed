@@ -81,10 +81,7 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
                 }
             }
 
-            return [
-                'fields' => $this->req,
-                'files' => $this->files
-            ];
+            return array_merge($this->req, $this->files);
         }
         
         public function validateFields($fields_config)
