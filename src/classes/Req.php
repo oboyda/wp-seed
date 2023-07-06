@@ -60,6 +60,32 @@ if(!class_exists(__NAMESPACE__ . '\Req'))
 
             return (empty($this->files[$key]) && isset($default)) ? $default : $this->files[$key];
         }
+
+        public function getAll($san_types=[], $defaults=[])
+        {
+            if(!empty($_REQUEST)){
+                foreach(array_keys($_REQUEST) as $key){
+                    if(!isset($this->req[$key])){
+                        $san_type = isset($san_types[$key]) ? $san_types[$key] : 'text';
+                        $default = isset($defaults[$key]) ? $defaults[$key] : null;
+                        $this->get($key, $san_type, $default);
+                    }
+                }
+            }
+            if(!empty($_FILES)){
+                foreach(array_keys($_FILES) as $key){
+                    if(!isset($this->files[$key])){
+                        $default = isset($defaults[$key]) ? $defaults[$key] : null;
+                        $this->getFile($key, $default);
+                    }
+                }
+            }
+
+            return [
+                'fields' => $this->req,
+                'files' => $this->files
+            ];
+        }
         
         public function validateFields($fields_config)
         {
