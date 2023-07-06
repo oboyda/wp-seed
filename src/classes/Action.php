@@ -135,6 +135,11 @@ if(!class_exists(__NAMESPACE__ . '\Action'))
             return $this->req->getFile($key, $default);
         }
 
+        protected function getReqAll($san_types=[], $defaults=[])
+        {
+            return $this->req->getAll($san_types, $defaults);
+        }
+
         /*
         Helpers
         -------------------------
