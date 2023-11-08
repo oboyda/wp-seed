@@ -453,7 +453,7 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
                 $value = isset($args[0]) ? $args[0] : null;
     
-                $prop_name = substr($name, strlen('g_'));
+                $prop_name = substr($name, strlen('set_'));
                 return $this->set_prop($prop_name, $value);
             }
             
