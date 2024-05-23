@@ -42,7 +42,7 @@ if(!function_exists('wpseed_get_view'))
 
         $view = wpseed_get_view_object($view_name, $args, $view_dir, $view_namespace);
     
-        if(file_exists($view_path))
+        if(file_exists($view_path) || method_exists($view, 'renderHtml'))
         {
             if(!$echo)
             {
@@ -51,7 +51,11 @@ if(!function_exists('wpseed_get_view'))
     
             if(isset($view) && (isset($view->args['view_cap']) && ($view->args['view_cap'] === 'public' || current_user_can($view->args['view_cap']))))
             {
-                include $view_path;
+                if(method_exists($view, 'renderHtml')){
+                    $view->renderHtml();
+                }else{
+                    include $view_path;
+                }
             }
     
             if(!$echo)
