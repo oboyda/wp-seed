@@ -60,6 +60,16 @@ if(!class_exists(__NAMESPACE__ . '\View'))
 
         /* 
         --------------------------------------------------
+        Set $this->args[$name]
+        --------------------------------------------------
+        */
+        protected function setArg($name, $value=null)
+        {
+            $this->args[$name] = $value;
+        }
+
+        /* 
+        --------------------------------------------------
         Magic method for getting (get_[property_name]) and checking (has_[property_name]) object properties
         
         @return mixed
@@ -72,14 +82,14 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                 $var = substr($name, strlen('get_'));
                 
                 return isset($this->args[$var]) ? $this->args[$var] : null;
-                return isset($this->$var) ? $this->$var : null;
+                // return isset($this->$var) ? $this->$var : null;
             }
             elseif(strpos($name, 'has_') === 0){
                 
                 $var = substr($name, strlen('has_'));
                 
                 return isset($this->args[$var]) ? (is_bool($this->args[$var]) ? $this->args[$var] : !empty($this->args[$var])) : false;
-                return isset($this->$var) ? (is_bool($this->$var) ? $this->$var : !empty($this->$var)) : false;
+                // return isset($this->$var) ? (is_bool($this->$var) ? $this->$var : !empty($this->$var)) : false;
             }
             
             return null;
