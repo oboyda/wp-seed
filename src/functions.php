@@ -104,7 +104,7 @@ if(!function_exists('wpseed_get_dir_files'))
         
         $files = [];
         
-        $scan_files = scandir($dir);
+        $scan_files = is_dir($dir) ? scandir($dir) : [];
 
         foreach($scan_files as $file)
         {
