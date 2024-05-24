@@ -75,21 +75,35 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         @return mixed
         --------------------------------------------------
         */
-        public function __call($name, $args)
+        public function __call($name, $props)
         {
             if(strpos($name, 'get_') === 0)
             {
                 $var = substr($name, strlen('get_'));
+
+                // return isset($this->args[$var]) ? $this->args[$var] : null;
                 
-                return isset($this->args[$var]) ? $this->args[$var] : null;
-                // return isset($this->$var) ? $this->$var : null;
+                $v = isset($this->args[$var]) ? $this->args[$var] : null;
+
+                if(isset($props[0]) && is_array($v) && isset($v[$props[0]])){
+                    $v = $v[$props[0]];
+                }
+
+                return $v;
             }
             elseif(strpos($name, 'has_') === 0){
                 
                 $var = substr($name, strlen('has_'));
+
+                // return isset($this->args[$var]) ? (is_bool($this->args[$var]) ? $this->args[$var] : !empty($this->args[$var])) : false;
+
+                $v = isset($this->args[$var]) ? $this->args[$var] : null;
+
+                if(isset($props[0]) && is_array($v) && isset($v[$props[0]])){
+                    $v = $v[$props[0]];
+                }
                 
-                return isset($this->args[$var]) ? (is_bool($this->args[$var]) ? $this->args[$var] : !empty($this->args[$var])) : false;
-                // return isset($this->$var) ? (is_bool($this->$var) ? $this->$var : !empty($this->$var)) : false;
+                return is_bool($v) ? $v : !empty($v);
             }
             
             return null;
