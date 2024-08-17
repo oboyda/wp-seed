@@ -49,7 +49,7 @@ if(!class_exists(__NAMESPACE__ . '\User'))
 
             $this->id = 0;
             $this->data = [];
-            $this->role = '';
+            $this->role = 'subscriber';
 
             $_user = (is_int($user) && $user) ? get_userdata($user) : $user;
 
@@ -198,7 +198,8 @@ if(!class_exists(__NAMESPACE__ . '\User'))
             }
 
             $data = array_merge($this->get_data(), [
-                'meta_input' => $this->get_meta(null, null, true)
+                'meta_input' => $this->get_meta(null, null, true),
+                'role' => $this->get_role()
             ]);
 
             if($updating)
