@@ -25,16 +25,16 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                 'view_cap' => 'public'
             ]);
 
-            if($args_parse_deep)
-            {
-                foreach($default_args as $key => $default_arg)
-                {
-                    if(is_array($default_arg) && isset($args[$key]) && is_array($args[$key]))
-                    {
-                        $args[$key] = wp_parse_args($args[$key], $default_arg);
-                    }
-                }
-            }
+            // if($args_parse_deep)
+            // {
+            //     foreach($default_args as $key => $default_arg)
+            //     {
+            //         if(is_array($default_arg) && isset($args[$key]) && is_array($args[$key]))
+            //         {
+            //             $args[$key] = wp_parse_args($args[$key], $default_arg);
+            //         }
+            //     }
+            // }
             $this->args = wp_parse_args($args, $default_args);
 
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
