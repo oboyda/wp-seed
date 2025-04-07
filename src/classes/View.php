@@ -19,23 +19,13 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         @param array $args Default arguments to be used in the template.
         --------------------------------------------------
         */
-        public function __construct($args=[], $default_args=[], $args_parse_deep=true)
+        public function __construct($args=[], $default_args=[])
         {
-            $default_args = wp_parse_args($default_args, [
+            $default_args = array_merge([
                 'view_cap' => 'public'
-            ]);
+            ], $default_args);
 
-            // if($args_parse_deep)
-            // {
-            //     foreach($default_args as $key => $default_arg)
-            //     {
-            //         if(is_array($default_arg) && isset($args[$key]) && is_array($args[$key]))
-            //         {
-            //             $args[$key] = wp_parse_args($args[$key], $default_arg);
-            //         }
-            //     }
-            // }
-            $this->args = wp_parse_args($args, $default_args);
+            $this->args = array_merge($default_args, $args);
 
             $this->id = empty($this->args['id']) ? $this->genId() : $this->args['id'];
 
@@ -103,6 +93,7 @@ if(!class_exists(__NAMESPACE__ . '\View'))
                     $v = $v[$props[0]];
                 }
                 
+                // return is_bool($v) ? $v : ($v !== null);
                 return is_bool($v) ? $v : !empty($v);
             }
             
@@ -250,11 +241,11 @@ if(!class_exists(__NAMESPACE__ . '\View'))
         {
             $html = '';
 
-            $_cols_num = is_array($cols_num) ? wp_parse_args($cols_num, [
+            $_cols_num = is_array($cols_num) ? array_merge([
                 'num' => 0,
                 'num_md' => 0,
                 'num_lg' => 0
-            ]) : [
+            ], $cols_num) : [
                 'num' => ($col_class == '') ? $cols_num : 0,
                 'num_md' => ($col_class == 'md') ? $cols_num : 0,
                 'num_lg' => ($col_class == 'lg') ? $cols_num : 0

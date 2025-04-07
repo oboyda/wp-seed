@@ -420,7 +420,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
         public function has_prop($key)
         {
             $prop = $this->get_prop($key);
-            return !empty($prop);
+            // return !empty($prop);
+            return ($prop !== null);
         }
 
         /*
@@ -494,7 +495,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 return $this->data;
             }
 
-            return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
+            // return (empty($this->data[$key]) && isset($default)) ? $default : (isset($this->data[$key]) ? $this->data[$key] : null);
+            return (isset($this->data[$key]) && $this->data[$key] !== null) ? $this->data[$key] : $default;
         }
 
         /*
@@ -538,7 +540,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
                 $meta = isset($meta[0]) ? $meta[0] : null;
             }
 
-            $meta = (empty($meta) && isset($default)) ? $default : (is_string($meta) ? trim($meta) : $meta);
+            // $meta = (empty($meta) && isset($default)) ? $default : (is_string($meta) ? trim($meta) : $meta);
+            $meta = ($meta !== null) ? (is_string($meta) ? trim($meta) : $meta) : $default;
 
             return $this->cast_prop($meta, $this->get_props_config($key, 'cast'));
         }
@@ -569,7 +572,8 @@ if(!class_exists(__NAMESPACE__ . '\Entity'))
 
             if($single)
             {
-                $terms = isset($terms[0]) ? $terms[0] : $terms;
+                $terms = isset($terms[0]) ? $terms[0] : null;
+                return ($terms !== null) ? $terms : $default;
             }
 
             return (empty($terms) && isset($default)) ? $default : $terms;
